@@ -53,11 +53,19 @@ public class NetworkingServerDemo : MonoBehaviour {
 			Debug.Log ("Server Connect");
             
             sock.BeginReceive(buffer, 0, 4, SocketFlags.None, new AsyncCallback(jsonsizecallback), new object());
+
+            sock.BeginSend(new byte[10], 0, 10, SocketFlags.None, new AsyncCallback(sendcallback), new object());
 		}
 		else {
 			Debug.Log("Error!");
 		}
 	}
+
+    private void sendcallback(IAsyncResult result)
+    {
+        Debug.Log("Server sent data (whoa)");
+        sock.EndSend(result);
+    }
 
     private void jsonsizecallback(IAsyncResult result)
     {

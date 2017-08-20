@@ -57,6 +57,8 @@ public class NetworkingClientDemo : MonoBehaviour {
 
             Debug.Log("Client Begin Send");
 
+            sock.BeginReceive(new byte[10], 0, 10, SocketFlags.None, new AsyncCallback(receivecallback), new object());
+
             sock.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(sendcomplete), new object());
 			
 		}
@@ -64,6 +66,12 @@ public class NetworkingClientDemo : MonoBehaviour {
 			Debug.Log("Error!");
 		}
 	}
+
+    private void receivecallback(IAsyncResult result)
+    {
+        sock.EndReceive(result);
+        Debug.Log("Client receive callback (Whoa)");
+    }
 
     private void sendcomplete(IAsyncResult result)
     {
