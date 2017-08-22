@@ -8,8 +8,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.Threading;
 
-public class JsonClient
-{
+public class JsonServer {
 
     private static int PORT = 5555;
 
@@ -22,22 +21,23 @@ public class JsonClient
     private Semaphore queueSemaphore;
 
     //outgoing queue must be synchronized!
-    public JsonClient(Action<ActionableJsonMessage> messageProcessor_, QueueWithSem<ActionableJsonMessage> outgoingQueue_)
+	public JsonServer(Action<ActionableJsonMessage> messageProcessor_, QueueWithSem<ActionableJsonMessage> outgoingQueue_)
     {
         messageProcessor = messageProcessor_;
         outgoingQueue = outgoingQueue_;
 
-        TcpClient client = new TcpClient();
+        TcpListener listener = new TcpListener(IPAddress.Loopback, PORT);
+        listener.Start();
 
-        client.BeginConnect(IPAddress.Loopback, 5555, new AsyncCallback(acceptCallback), client);
-        
+        listener.BeginAcceptTcpClient(new AsyncCallback(acceptCallback), listener);
     }
 
     private void acceptCallback(IAsyncResult result)
     {
-        TcpClient client = (TcpClient)result.AsyncState;
-        client.EndConnect(result);
+        TcpListener listener = (TcpListener)result.AsyncState;
+        TcpClient client = listener.EndAcceptTcpClient(result);
         sock = client.Client;
+        listener.EndAcceptTcpClient(result);
 
         startRead();
 
@@ -61,7 +61,7 @@ public class JsonClient
         //at this point the size of the buffer is 4
         if (BitConverter.IsLittleEndian) Array.Reverse(sizeBuffer);
         int size = BitConverter.ToInt32(sizeBuffer, 0);
-        Debug.Log("Client: Size of json object is " + size);
+        Debug.Log("Server: Size of json object is " + size);
         byte[] jsonBuffer = new byte[size];
 
         sock.BeginReceive(jsonBuffer, 0, size, SocketFlags.None, new AsyncCallback(jsoncallback), jsonBuffer);
@@ -71,13 +71,13 @@ public class JsonClient
         byte[] jsonBuffer = (byte[])result.AsyncState;
         sock.EndReceive(result);
 
-        Debug.Log("Client: parsing json of size " + jsonBuffer.Length);
+        Debug.Log("Server: parsing json of size " + jsonBuffer.Length);
         string jsonstr = buf2str(jsonBuffer);
         ActionableJsonMessage obj = JsonConvert.DeserializeObject<ActionableJsonMessage>(jsonstr);
 
         messageProcessor.Invoke(obj); // process the message
 
-        Debug.Log("Client: Read Json Message" + obj.ToString());
+        Debug.Log("Server: Read Json Message" + obj.ToString());
 
         startRead(); //read the next message
     }
@@ -98,7 +98,7 @@ public class JsonClient
 
     private void sendHandler(IAsyncResult result)
     {
-        Debug.Log("Json Client sent message");
+        Debug.Log("Json server sent message");
         sock.EndSend(result);
     }
 
@@ -113,7 +113,7 @@ public class JsonClient
     {
         return System.Text.Encoding.UTF8.GetBytes(str);
     }
-    #endregion
+#endregion
 
 
 }
