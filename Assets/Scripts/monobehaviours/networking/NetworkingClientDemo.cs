@@ -60,8 +60,7 @@ public class NetworkingClientDemo : MonoBehaviour {
             sock.BeginReceive(new byte[10], 0, 10, SocketFlags.None, new AsyncCallback(receivecallback), new object());
 
             sock.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(sendcomplete), new object());
-			
-		}
+        }
 		else {
 			Debug.Log("Error!");
 		}

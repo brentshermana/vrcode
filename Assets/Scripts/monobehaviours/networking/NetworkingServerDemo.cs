@@ -55,7 +55,7 @@ public class NetworkingServerDemo : MonoBehaviour {
             sock.BeginReceive(buffer, 0, 4, SocketFlags.None, new AsyncCallback(jsonsizecallback), new object());
 
             sock.BeginSend(new byte[10], 0, 10, SocketFlags.None, new AsyncCallback(sendcallback), new object());
-		}
+        }
 		else {
 			Debug.Log("Error!");
 		}
@@ -83,12 +83,13 @@ public class NetworkingServerDemo : MonoBehaviour {
     private void jsoncallback(IAsyncResult result)
     {
         int size = (int)result.AsyncState;
-        Debug.Log("Server: parsing json of size " + size);
         sock.EndReceive(result);
+        Debug.Log("Server parsing json of size " + size);
+        
         string jsonstr = buf2str(buffer);
         ExampleJsonClass obj = JsonConvert.DeserializeObject<ExampleJsonClass>(jsonstr);
 
-        Debug.Log("Server: Json: " + obj.ToString());
+        Debug.Log("Server Received Message: " + obj.ToString());
     }
 
 	
