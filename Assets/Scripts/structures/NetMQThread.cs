@@ -28,7 +28,7 @@ public class NetMQThread
         AsyncIO.ForceDotNet.Force();
         using (var server = new ResponseSocket())
         {
-            server.Bind("tcp://*:12346");
+            server.Bind("tcp://localhost:12346");
 
             while (!_listenerCancelled)
             {
@@ -57,7 +57,7 @@ public class NetMQThread
                 }
                 if (outMessages.Count == 0)
                 {
-                    ActionableJsonMessage nop = new ActionableJsonMessage();
+                    ActionableJsonMessage nop = new ActionableJsonMessage("NOP", "", null);
                     nop.Type = "NOP";
                     outMessages.Add(nop);
                 }

@@ -10,16 +10,33 @@ public class ActionableJsonMessage {
     public string SubType;
     public string[] Args;
 
+    public ActionableJsonMessage(string t, string st, string[] a)
+    {
+        Type = t;
+        SubType = st;
+        Args = a;
+    }
+
     public string ToString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.Append(Type);
-        sb.Append(" : ");
-        sb.Append(SubType);
-        foreach (string s in Args)
+        if (Type != null)
+        {
+            sb.Append(Type);
+           
+        }
+        if (SubType != null)
         {
             sb.Append(" : ");
-            sb.Append(s);
+            sb.Append(SubType);
+        }
+        if (Args != null)
+        {
+            foreach (string s in Args)
+            {
+                sb.Append(" : ");
+                sb.Append(s);
+            }
         }
         return sb.ToString();
     }
