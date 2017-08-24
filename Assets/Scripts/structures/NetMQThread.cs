@@ -58,7 +58,6 @@ public class NetMQThread
                 if (outMessages.Count == 0)
                 {
                     ActionableJsonMessage nop = new ActionableJsonMessage("NOP", "", null);
-                    nop.Type = "NOP";
                     outMessages.Add(nop);
                 }
                 byte[] outwardmessage = MyJson.toBytes(outMessages.ToArray());

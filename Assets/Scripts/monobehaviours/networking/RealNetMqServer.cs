@@ -22,11 +22,25 @@ public class RealNetMqServer : MonoBehaviour {
 	void Start () {
         actor = new NetMQThread(inqueue, outqueue);
         actor.Start();
-	}
+
+        //assign an arbitrary working directory:
+        ActionableJsonMessage setwd = new ActionableJsonMessage(
+            "Editor",
+            "Directory",
+            new string[] { @"D:\dev\python_workspace"  }
+        );
+        SendToBackend(setwd);
+    }
 
     private void OnDestroy()
     {
         actor.Stop();
+    }
+
+    public void SendToBackend(ActionableJsonMessage msg)
+    {
+        UnityEngine.Debug.Log("server sending to backend: " + msg.ToString());
+        outqueue.Enqueue(msg);
     }
 
     // Update is called once per frame
@@ -36,7 +50,7 @@ public class RealNetMqServer : MonoBehaviour {
         while (success)
         {
             ActionableJsonMessage msg = inqueue.TryDequeue(ref success);
-            if (success)
+            if (success && msg.Type != "NOP")
             {
                 UnityEngine.Debug.Log("Server Received a Message -> " + msg.ToString());
             }
