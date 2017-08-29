@@ -18,14 +18,78 @@ public class CodeTextEditor : MonoBehaviour
     private InputField _inputField;
     private Color _defaultTextColour;
 
+    public InputField ExecInput;
+    public InputField BreakInput;
+
+    private RealNetMqServer server;
+
     public void Start()
     {
         _inputField = gameObject.GetComponent<InputField>();
-        _inputField.text = DefaultText.Replace("\\n", "\n").Replace("\\t", "\t");
+        _inputField.text = "";
         _defaultTextColour = OutputField.textComponent.color;
+
+        server = GameObject.Find("NetMQ").GetComponent<RealNetMqServer>();
     }
 
-    public void SendToBackend()
+    public void SetBreakpoint()
+    {
+        string line = BreakInput.text;
+        Debug.Log("Breakpoint at " + line);
+        ActionableJsonMessage bpmsg = new ActionableJsonMessage(
+            "Runtime",
+            "BpSet",
+            new string[] { line }
+        );
+        server.SendToBackend(bpmsg);
+    }
+
+    public void Continue()
+    {
+        Debug.Log("Continue");
+        ActionableJsonMessage continuemsg = new ActionableJsonMessage(
+            "Runtime",
+            "Continue",
+            new string[] { }
+        );
+        server.SendToBackend(continuemsg);
+    }
+
+    public void Exec ()
+    {
+        string s = ExecInput.text;
+        Debug.Log("Executing String " + s);
+        ActionableJsonMessage execMessage = new ActionableJsonMessage(
+            "Runtime",
+            "Exec",
+            new string[] { s }
+        );
+        server.SendToBackend(execMessage);
+    }
+
+    public void Next()
+    {
+        Debug.Log("Next Line");
+        ActionableJsonMessage nextmsg = new ActionableJsonMessage(
+            "Runtime",
+            "Next",
+            new string[] { }
+        );
+        server.SendToBackend(nextmsg);
+    }
+
+    public void Quit()
+    {
+        Debug.Log("Quitting");
+        ActionableJsonMessage quitmsg = new ActionableJsonMessage(
+            "Runtime",
+            "Quit",
+            new string[] {  }
+        );
+        server.SendToBackend(quitmsg);
+    }
+
+    public void RunCode()
     {
         Debug.Log("Sending Code to Backend...");
         string code = _inputField.text;
@@ -42,7 +106,7 @@ public class CodeTextEditor : MonoBehaviour
         );
         ActionableJsonMessage[] messages = new ActionableJsonMessage[] { codeMessage, runMessage };
 
-        RealNetMqServer server = GameObject.Find("NetMQ").GetComponent<RealNetMqServer>();
+        
         foreach (ActionableJsonMessage msg in messages)
         {
             server.SendToBackend(msg);
@@ -50,43 +114,66 @@ public class CodeTextEditor : MonoBehaviour
         Debug.Log("...Complete");
     }
 
-    public void Compile()
+    public void Update()
     {
-        OutputField.textComponent.color = _defaultTextColour;
-        CompilerResults compile = CompileHelper.CompileCodeFromString(_inputField.text);
-
-        if (compile.Errors.HasErrors)
+        ActionableJsonMessage msg = server.AttemptDequeue();
+        while (msg != null)
         {
-            string text = "Compile error: ";
-            foreach (CompilerError error in compile.Errors)
-            {
-                text += '\n' + error.ToString();
-            }
-
-            var defaultColour = OutputField.textComponent.color;
-            OutputField.textComponent.color = Color.red;
-            OutputField.text = text;
-            return;
+            Debug.Log("Editor processing message " + msg.ToString());
+            processMessage(msg);
+            msg = server.AttemptDequeue();
         }
-
-        Module module = compile.CompiledAssembly.GetModules()[0];
-        Type typeInfo = null;
-        MethodInfo methodInfo = null;
-
-        if (module != null)
-        {
-            typeInfo = module.GetType("TestClass");
-        }
-
-        if (typeInfo != null)
-        {
-            methodInfo = typeInfo.GetMethod("EchoStuff");
-        }
-
-        if (methodInfo != null)
-        {
-            OutputField.text = (string)methodInfo.Invoke(null, new object[] { "Here's some stuff!" });
-        }
-
     }
+
+    private void processMessage(ActionableJsonMessage message)
+    {
+        switch (message.Type)
+        {
+            case "Runtime":
+                processRuntimeMessage(message);
+                break;
+            case "Output":
+                processOutputMessage(message);
+                break;
+        }
+    }
+
+    private void console_log(string str)
+    {
+        Debug.Log("console_logging : " + str);
+        OutputField.text = OutputField.text + (Environment.NewLine + str);
+    }
+
+    private void processOutputMessage(ActionableJsonMessage msg)
+    {
+        if (msg.SubType == "Stdout")
+        {
+            console_log("Stdout: " + msg.Args[0]);
+        }
+        else if (msg.SubType == "Stderr")
+        {
+            console_log("Stderr: " + msg.Args[0]);
+        }
+    }
+
+    private void processRuntimeMessage(ActionableJsonMessage message)
+    {
+        string subtype = message.SubType;
+        string[] args = message.Args;
+        
+        switch (subtype)
+        {
+            case "Exit":
+                console_log("Program Exited with status " + args[0]);
+                break;
+            case "Error":
+                console_log("Program Error: " + args[0]);
+                break;
+            case "Pause":
+                console_log("Program waiting on line " + args[0]);
+                break;
+            
+        }
+    }
+
 }

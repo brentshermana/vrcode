@@ -42,7 +42,11 @@ public class NetMQThread
                 ActionableJsonMessage[] messages = MyJson.fromBytes(message);
                 foreach (ActionableJsonMessage m in messages)
                 {
-                    inQueue.Enqueue(m);
+                    if (m.Type != "NOP")
+                    {
+                        UnityEngine.Debug.Log("NetMQThread read " + m.ToString());
+                        inQueue.Enqueue(m);
+                    }
                 }
 
                 List<ActionableJsonMessage> outMessages = new List<ActionableJsonMessage>();

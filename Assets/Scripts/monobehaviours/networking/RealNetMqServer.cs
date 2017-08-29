@@ -43,6 +43,16 @@ public class RealNetMqServer : MonoBehaviour {
         outqueue.Enqueue(msg);
     }
 
+    //TODO: in the future, netmqserver should have the responsibility
+    // of sorting incoming messages into separate queues by recipient?
+    public ActionableJsonMessage AttemptDequeue()
+    {
+        bool success = true;
+        ActionableJsonMessage msg = inqueue.TryDequeue(ref success);
+        if (success) return msg;
+        else return null;
+    }
+
     // Update is called once per frame
     void Update () {
         //TODO: act on messages!
