@@ -18,6 +18,22 @@ public class LetterScope : MonoBehaviour {
 	public float Width {
 		get { return width; }
 	}
+    public float MinY
+    {
+        get{ return miny; }
+    }
+    public float MaxY
+    {
+        get { return maxy; }
+    }
+    public float MinX
+    {
+        get { return minx; }
+    }
+    public float MaxX
+    {
+        get { return maxx; }
+    }
 
 	// Use this for initialization
 	void Awake () {
@@ -31,8 +47,28 @@ public class LetterScope : MonoBehaviour {
 
 		transform.rotation = rotation;
 
-		Debug.Log ("Letter says its width is " + width);
+		// Debug.Log ("Letter says its width is " + width);
 	}
+
+    public void SetMaterial(Material mat)
+    {
+        //get all meshrenderers in current object or any children, and change all materials
+        Queue<Transform> q = new Queue<Transform>();
+        q.Enqueue(transform);
+        while (q.Count > 0)
+        {
+            Transform current = q.Dequeue();
+            MeshRenderer mr = current.GetComponent<MeshRenderer>();
+            if (mr != null)
+            {
+                mr.material = mat;
+            }
+            foreach (Transform child in current)
+            {
+                q.Enqueue(child);
+            }
+        }
+    }
 
 	// for demonstrative purposes
 	private void MakeExtentCube() {

@@ -133,8 +133,17 @@ public class ProceduralRectInfo {
 	public void Enforce(GameObject go) {
 		if (staleMesh) {
 			MeshFilter meshFilter = go.GetComponent<MeshFilter> ();
+            if (meshFilter == null)
+            {
+                meshFilter = go.AddComponent<MeshFilter>();
+            }
 
-			go.GetComponent<MeshRenderer> ().material = material;
+			MeshRenderer meshrenderer = go.GetComponent<MeshRenderer> ();
+            if (meshrenderer == null)
+            {
+                meshrenderer = go.AddComponent<MeshRenderer>();
+            }
+            meshrenderer.material = material;
 
 			vertices = calculateVertices ();
 
