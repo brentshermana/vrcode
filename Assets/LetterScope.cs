@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LetterScope : MonoBehaviour {
 
+    public bool debug;
+
 	//extrema
 	private float miny = float.MaxValue;
 	private float maxy = float.MinValue;
@@ -14,10 +16,13 @@ public class LetterScope : MonoBehaviour {
 	private float minz = float.MaxValue;
 	private float maxz = float.MinValue;
 
-	private float width;
 	public float Width {
-		get { return width; }
+		get { return maxx-minx; }
 	}
+    public float Height
+    {
+        get { return maxy - miny; }
+    }
     public float MinY
     {
         get{ return miny; }
@@ -42,12 +47,14 @@ public class LetterScope : MonoBehaviour {
 
 		SetExtents ();
 		//We assume the characters have no rotation
-		width = Mathf.Abs (maxx-minx);
+
 		//MakeExtentCube ();
 
 		transform.rotation = rotation;
 
-		// Debug.Log ("Letter says its width is " + width);
+        // Debug.Log ("Letter says its width is " + width);
+        if (debug)
+            Debug.Log("Width: " + Width + "Height: " + Height);
 	}
 
     public void SetMaterial(Material mat)
