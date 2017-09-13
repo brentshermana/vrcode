@@ -43,14 +43,10 @@ public class LetterScope : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		Quaternion rotation = transform.rotation;
+
 		transform.rotation = Quaternion.identity;
-
-		SetExtents ();
-		//We assume the characters have no rotation
-
-		//MakeExtentCube ();
-
-		transform.rotation = rotation;
+		SetExtents (); //We assume the characters have no rotation\
+        transform.rotation = rotation;
 
         // Debug.Log ("Letter says its width is " + width);
         if (debug)

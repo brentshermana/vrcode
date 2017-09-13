@@ -88,6 +88,14 @@ public class String3DPix : MonoBehaviour {
         maxy = max;
     }
 
+    public float Width
+    {
+        get
+        {
+            return x_offset;
+        }
+    }
+
 	// Use this for initialization
 	void Awake () {
 		x_offset = 0;
@@ -170,6 +178,22 @@ public class String3DPix : MonoBehaviour {
 		}
 	}
 
+    public void SetContent(string content)
+    {
+        //flush current content
+        foreach (Transform child in transform)
+        {
+            Destroy(child);
+        }
+        letters.Clear();
+        x_offset = 0f;
+        //add new content
+        foreach (char c in content)
+        {
+            AddChar(c);
+        }
+    }
+
     public bool AddChar(char c)
     {
         if (unavailable_chars.Contains(c))
@@ -204,13 +228,14 @@ public class String3DPix : MonoBehaviour {
                 chars.Add(c);
                 LetterScope letter = instance.GetComponent<LetterScope>();
 
+                if (letters.Count > 0) x_offset += spacing;
                 //Debug.Log("String3D reads width " + letter.Width);
                 x_offset += .5f * letter.Width;
                 //Vector3 center = transform.position + -transform.right * x_offset; //left because Unity's coordinate system is odd
                 //instance.transform.position = center;
                 instance.transform.position += transform.right*x_offset;
                 x_offset += .5f * letter.Width;
-                x_offset += spacing;
+                
 
                 //Debug.Log("Offset " + x_offset + " right: " + transform.right);
 
