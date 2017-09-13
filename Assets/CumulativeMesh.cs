@@ -6,8 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer))]
 public class CumulativeMesh : MonoBehaviour {
 
+    
+
 	// Use this for initialization
-	void Start () { // should this be awake, or start?
+	public void Awake () {
 		MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
 		CombineInstance[] combine = new CombineInstance[meshFilters.Length];
 		int i = 0;
@@ -19,7 +21,7 @@ public class CumulativeMesh : MonoBehaviour {
 		}
 		transform.GetComponent<MeshFilter>().mesh = new Mesh();
 		transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine);
-		transform.gameObject.active = true;
+        gameObject.SetActive(true);
 	}
 
 	// Update is called once per frame

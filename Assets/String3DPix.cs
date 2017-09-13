@@ -11,6 +11,8 @@ using UnityEngine;
 
 public class String3DPix : MonoBehaviour {
 
+    public float spacing;
+
     public Material material;
 
 	private static Dictionary<char, GameObject> characters;
@@ -94,7 +96,7 @@ public class String3DPix : MonoBehaviour {
         special_character_names.Add('&', "ampersand");
         special_character_names.Add('@', "at");
         special_character_names.Add('*', "asterisk");
-        special_character_names.Add('\\', "back_slash");
+        special_character_names.Add('\\', "backslash");
         special_character_names.Add('`', "backtick");
 				special_character_names.Add('^', "caret");
 				special_character_names.Add(':', "colon");
@@ -106,18 +108,24 @@ public class String3DPix : MonoBehaviour {
 				special_character_names.Add('/', "forward_slash");
 				special_character_names.Add('4', "four");
 
+        special_character_names.Add('?', "question");
+
 				special_character_names.Add('>', "greater_than");
 				special_character_names.Add('#', "hashtag");
 				special_character_names.Add('{', "left_curly_bracket");
 				special_character_names.Add('(', "left_parenthesis");
-				special_character_names.Add('[', "self_square_bracket");
+        special_character_names.Add('[', "left_square_bracket");
+        special_character_names.Add('.', "period");
+        special_character_names.Add(',', "comma");
 				special_character_names.Add('<', "less_than");
 				special_character_names.Add('-', "minus");
 				special_character_names.Add('9', "nine");
+                special_character_names.Add('5', "five");
 				special_character_names.Add('1', "one");
 				special_character_names.Add('%', "percent");
 				special_character_names.Add('+', "plus");
 				special_character_names.Add('}', "right_curly_bracket");
+        special_character_names.Add(')', "right_parenthesis");
 
 				special_character_names.Add(']', "right_square_bracket");
 				special_character_names.Add(';', "semicolon");
@@ -190,7 +198,8 @@ public class String3DPix : MonoBehaviour {
                 //Debug.Log("Loaded Resource : " + c.ToString());
 
                 GameObject instance = Instantiate(charobj, transform.position, transform.rotation) as GameObject;
-                instance.transform.rotation = transform.rotation;
+
+                instance.transform.SetParent(transform);
 
                 chars.Add(c);
                 LetterScope letter = instance.GetComponent<LetterScope>();
@@ -199,8 +208,9 @@ public class String3DPix : MonoBehaviour {
                 x_offset += .5f * letter.Width;
                 //Vector3 center = transform.position + -transform.right * x_offset; //left because Unity's coordinate system is odd
                 //instance.transform.position = center;
-                instance.transform.position = instance.transform.position + -transform.right*x_offset;
+                instance.transform.position += transform.right*x_offset;
                 x_offset += .5f * letter.Width;
+                x_offset += spacing;
 
                 //Debug.Log("Offset " + x_offset + " right: " + transform.right);
 
@@ -208,6 +218,11 @@ public class String3DPix : MonoBehaviour {
                 {
                     letter.SetMaterial(this.material);
                 }
+
+                /*
+                CumulativeMesh cm = instance.GetComponent<CumulativeMesh>();
+                if (cm != null) cm.Init();
+                */
 
                 letters.Add(letter);
                 return true;
