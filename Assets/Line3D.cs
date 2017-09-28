@@ -8,6 +8,8 @@ public class Line3D : MonoBehaviour {
 
     public bool debug;
 
+    private float x_offset = 0f;
+
 
     public float spacing;
     public Transform wordmodel;
@@ -34,8 +36,10 @@ public class Line3D : MonoBehaviour {
         else {
             position = words[words.Count-1].transform.position;
             position += transform.right * words[words.Count - 1].GetComponent<String3DPix>().Width;
-            //position += transform.right + spacing;
+            if (debug) Debug.Log("width " + words[words.Count - 1].GetComponent<String3DPix>().Width);
+            //position += transform.right * spacing;
         }
+        
         
         GameObject go = Instantiate(wordmodel, position, transform.rotation).gameObject;
         go.GetComponent<String3DPix>().SetContent(word);

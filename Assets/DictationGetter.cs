@@ -15,12 +15,21 @@ public class DictationGetter : MonoBehaviour
 
     private void Start()
     {
+        // Not actually useful:
+        //DictationTopicConstraint constraint = new DictationTopicConstraint();
+
         recognizer = new DictationRecognizer();
         //    new KeywordRecognizer(words, confidence_threshold);
         recognizer.DictationResult += OnPhraseRecognition;
         recognizer.DictationHypothesis += OnHypothesis;
         recognizer.DictationComplete += OnDictationComplete;
         recognizer.DictationError += OnDictationError;
+
+        //never stop listening
+        recognizer.InitialSilenceTimeoutSeconds = float.MaxValue;
+        recognizer.AutoSilenceTimeoutSeconds = float.MaxValue;
+        
+
         recognizer.Start();
     }
 
