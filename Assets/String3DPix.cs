@@ -21,8 +21,6 @@ public class String3DPix : MonoBehaviour {
     private static Dictionary<char, string> special_character_names;
 		//TODO: mapping from char to prefab name should be a separate class/object?
 
-
-
 	private List<char> chars;
 	private List<LetterScope> letters;
 	private float x_offset;
@@ -31,61 +29,12 @@ public class String3DPix : MonoBehaviour {
 	public string resource_subdir; //System.IO.Path.PathSeparator + "Characters" + System.IO.Path.PathSeparator + "_";
 
 
-    private float miny;
-    private float maxy;
-    public float MinY
+    public char[] Chars
     {
-        get { setMinY(); return miny; }
-    }
-    public float MaxY
-    {
-        get { setMaxY(); return maxy; }
-    }
-    private float minx;
-    private float maxx;
-    public float MinX
-    {
-        get { setMinX(); return minx; }
-    }
-    public float MaxX
-    {
-        get { setMaxX(); return maxx; }
-    }
-
-    public void setMaxX()
-    {
-        maxx = letters[letters.Count - 1].MaxX;
-    }
-
-    public void setMinX()
-    {
-        minx = letters[0].MinX;
-    }
-
-    public void setMinY()
-    {
-        float min = float.MaxValue;
-        foreach (LetterScope letter in letters)
+        get
         {
-            if (letter.MinY < min)
-            {
-                min = letter.MinY;
-            }
+            return chars.ToArray();
         }
-        miny = min;
-    }
-
-    public void setMaxY()
-    {
-        float max = float.MinValue;
-        foreach (LetterScope letter in letters)
-        {
-            if (letter.MaxY > max)
-            {
-                max = letter.MaxY;
-            }
-        }
-        maxy = max;
     }
 
     public float Width
@@ -106,7 +55,7 @@ public class String3DPix : MonoBehaviour {
         special_character_names.Add('*', "asterisk");
         special_character_names.Add('\\', "backslash");
         special_character_names.Add('`', "backtick");
-				special_character_names.Add('^', "caret");
+		special_character_names.Add('^', "caret");
 				special_character_names.Add(':', "colon");
 				special_character_names.Add('$', "dollar");
 				special_character_names.Add('"', "double_quote");
@@ -177,6 +126,7 @@ public class String3DPix : MonoBehaviour {
 			}
 		}
 	}
+    
 
     public void SetContent(string content)
     {
@@ -194,12 +144,40 @@ public class String3DPix : MonoBehaviour {
         }
     }
 
+    private static float space_length = .02f * 6;
+    private static int spaces_per_tab = 4;
+    private bool validWhitespace(char c)
+    {
+        return c == ' ' || c == '\t';
+    }
+    private float whitespaceWidth(char c)
+    {
+        if (!validWhitespace(c))
+            throw new System.ArgumentException("'" + c + "' is not valid whitespace!");
+
+        float space_width = space_length;
+        if (c == '\t')
+        {
+            space_width *= spaces_per_tab;
+        }
+        return space_width;
+    }
+
     public bool AddChar(char c)
     {
         if (unavailable_chars.Contains(c))
         {
             Debug.Log(c.ToString() + " Is known to be invalid");
             return false;
+        }
+        else if (validWhitespace(c)) // special branch for characters that are valid whitespace
+        {
+            float space_width = whitespaceWidth(c);
+            chars.Add(c);
+            x_offset += spacing;
+            x_offset += space_width;
+            letters.Add(null);
+            return true;
         }
         else
         {
@@ -221,19 +199,20 @@ public class String3DPix : MonoBehaviour {
             {
                 //Debug.Log("Loaded Resource : " + c.ToString());
 
-                GameObject instance = Instantiate(charobj, transform.position, transform.rotation) as GameObject;
+                GameObject instance = Instantiate(charobj, transform.position, transform.rotation, transform) as GameObject;
 
-                instance.transform.SetParent(transform);
+                //just a hacky solution because all the letters are backwards
+                instance.transform.RotateAround(transform.position, transform.up, 180f);
+                
+
+                //instance.transform.SetParent(transform);
 
                 chars.Add(c);
                 LetterScope letter = instance.GetComponent<LetterScope>();
 
-                if (letters.Count > 0) x_offset += spacing;
-                //Debug.Log("String3D reads width " + letter.Width);
+                x_offset += spacing;
                 x_offset += .5f * letter.Width;
-                //Vector3 center = transform.position + -transform.right * x_offset; //left because Unity's coordinate system is odd
-                //instance.transform.position = center;
-                instance.transform.position += transform.right*x_offset;
+                instance.transform.position += -transform.right*x_offset;
                 x_offset += .5f * letter.Width;
                 
 
@@ -243,12 +222,7 @@ public class String3DPix : MonoBehaviour {
                 {
                     letter.SetMaterial(this.material);
                 }
-
-                /*
-                CumulativeMesh cm = instance.GetComponent<CumulativeMesh>();
-                if (cm != null) cm.Init();
-                */
-
+                
                 letters.Add(letter);
                 return true;
             }
@@ -271,12 +245,62 @@ public class String3DPix : MonoBehaviour {
         material = mat;
     }
 
+    // untested so far
+    void RemoveRange(int from, int to) // inclusive bounds
+    {
+        int n = to - from + 1;
+        if (n < 1)
+        {
+            throw new System.ArgumentException("to < from");
+        }
+        else if (to >= chars.Count)
+        {
+            throw new System.ArgumentException(to + " is out of bounds!");
+        }
+
+        
+        float cumulative_width = n * spacing;
+        for (int i = from; i <= to; i++)
+        {
+            //determine collective width, including spacing
+            if (validWhitespace(chars[i]))
+                cumulative_width += whitespaceWidth(chars[i]);
+            else
+            {
+                cumulative_width += letters[i].Width;
+                Destroy(letters[i].gameObject);
+            }
+        }
+
+        letters.RemoveRange(from, n);
+        chars.RemoveRange(from, n);
+
+        //shift all chars right of the removed range to the left
+        Vector3 shift = transform.right * cumulative_width;
+        for (int i = from; i < letters.Count; i++)
+        {
+            if (letters[i] != null)
+            {
+                letters[i].gameObject.transform.position += shift;
+            }
+        }
+        
+    }
+
 	void Backspace() {
 		int index = chars.Count - 1;
 		if (index < 0)
 			return;
-		x_offset -= letters [index].Width;
-		Destroy (letters [index].gameObject);
+        x_offset -= spacing;
+        if (validWhitespace(chars[index]))
+        {
+            x_offset -= whitespaceWidth(chars[index]);
+        }
+        else
+        {
+            x_offset -= letters[index].Width;
+            Destroy(letters[index].gameObject);
+        }
 		chars.RemoveAt (index);
 		letters.RemoveAt (index);
 	}

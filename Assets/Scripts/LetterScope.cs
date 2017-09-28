@@ -42,16 +42,24 @@ public class LetterScope : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		Quaternion rotation = transform.rotation;
+		//Quaternion rotation = transform.rotation;
 
-		transform.rotation = Quaternion.identity;
+		//transform.rotation = Quaternion.identity;
 		SetExtents (); //We assume the characters have no rotation\
-        transform.rotation = rotation;
+        //transform.rotation = rotation;
 
         // Debug.Log ("Letter says its width is " + width);
         if (debug)
+        {
+            Debug.Log("I am born with rotation " + transform.rotation);
             Debug.Log("Width: " + Width + "Height: " + Height);
+        }
 	}
+
+    private void Start()
+    {
+        Debug.Log("I start with rotation " + transform.rotation);
+    }
 
     public void SetMaterial(Material mat)
     {
@@ -102,7 +110,7 @@ public class LetterScope : MonoBehaviour {
 			if (mf != null) {
 				Mesh m = mf.mesh;
 				foreach (Vector3 vl in m.vertices) {
-					Vector3 v = current.TransformPoint (vl); //conv to global space
+                    Vector3 v = vl;//current.TransformPoint (vl); //conv to global space
 
 					float x = v.x;
 					maxx = Mathf.Max (maxx, x);
@@ -126,6 +134,6 @@ public class LetterScope : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        Debug.Log("I update with rotation " + transform.rotation);
+    }
 }

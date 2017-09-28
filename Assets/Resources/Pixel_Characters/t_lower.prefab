@@ -37,9 +37,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4742757892796278}
   - component: {fileID: 114824381150583670}
-  - component: {fileID: 23566031003499450}
-  - component: {fileID: 33543145597174176}
-  - component: {fileID: 114060555685164270}
   m_Layer: 0
   m_Name: t_lower
   m_TagString: Untagged
@@ -197,38 +194,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!23 &23566031003499450
-MeshRenderer:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1670010194946358}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_Materials:
-  - {fileID: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
 --- !u!23 &23746389021068264
 MeshRenderer:
   m_ObjectHideFlags: 1
@@ -300,13 +265,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1697603788156558}
   m_Mesh: {fileID: 4300002, guid: be69f06e967e12148bfb261f7da3e27c, type: 3}
---- !u!33 &33543145597174176
-MeshFilter:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1670010194946358}
-  m_Mesh: {fileID: 0}
 --- !u!33 &33887798620505406
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -321,17 +279,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1063996587380498}
   m_Mesh: {fileID: 4300000, guid: be69f06e967e12148bfb261f7da3e27c, type: 3}
---- !u!114 &114060555685164270
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1670010194946358}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 015de528f236d42cbbed6bb3e3a15bdd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114824381150583670
 MonoBehaviour:
   m_ObjectHideFlags: 1
