@@ -51,14 +51,14 @@ public class LetterScope : MonoBehaviour {
         // Debug.Log ("Letter says its width is " + width);
         if (debug)
         {
-            Debug.Log("I am born with rotation " + transform.rotation);
-            Debug.Log("Width: " + Width + "Height: " + Height);
+            //Debug.Log("I am born with rotation " + transform.rotation);
+            //Debug.Log("Width: " + Width + "Height: " + Height);
         }
 	}
 
     private void Start()
     {
-        Debug.Log("I start with rotation " + transform.rotation);
+        //Debug.Log("I start with rotation " + transform.rotation);
     }
 
     public void SetMaterial(Material mat)
@@ -134,6 +134,6 @@ public class LetterScope : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        Debug.Log("I update with rotation " + transform.rotation);
+        //Debug.Log("I update with rotation " + transform.rotation);
     }
 }

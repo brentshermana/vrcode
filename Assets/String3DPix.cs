@@ -11,6 +11,8 @@ using UnityEngine;
 
 public class String3DPix : MonoBehaviour {
 
+	public float r; // radius of circle
+
     public float spacing;
 
     public Material material;
@@ -126,7 +128,17 @@ public class String3DPix : MonoBehaviour {
 			}
 		}
 	}
-    
+
+	private Vector3 getCenter() {
+		return transform.position + (transform.forward * r);
+	}
+
+
+	public Vector3 arc_position(float x_offset) {
+		float angle_r = x_offset / r;
+		Vector3 center = getCenter ();
+		return center + (-Mathf.Cos(angle_r) * transform.forward) + (-Mathf.Sin(angle_r) * transform.right);
+	}
 
     public void SetContent(string content)
     {
@@ -201,8 +213,7 @@ public class String3DPix : MonoBehaviour {
 
                 GameObject instance = Instantiate(charobj, transform.position, transform.rotation, transform) as GameObject;
 
-                //just a hacky solution because all the letters are backwards
-                instance.transform.RotateAround(transform.position, transform.up, 180f);
+                
                 
 
                 //instance.transform.SetParent(transform);
@@ -212,7 +223,11 @@ public class String3DPix : MonoBehaviour {
 
                 x_offset += spacing;
                 x_offset += .5f * letter.Width;
-                instance.transform.position += -transform.right*x_offset;
+                //instance.transform.position += -transform.right*x_offset;
+				instance.transform.position = arc_position(x_offset);
+				instance.transform.LookAt(getCenter(), transform.up);
+				//just a hacky solution to reverse rotation because all the letters are backwards
+				instance.transform.RotateAround(instance.transform.position, transform.up, 180f);
                 x_offset += .5f * letter.Width;
                 
 
