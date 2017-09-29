@@ -59,6 +59,7 @@ public class LetterScope : MonoBehaviour {
     private void Start()
     {
         //Debug.Log("I start with rotation " + transform.rotation);
+        Debug.Log(Width);
     }
 
     public void SetMaterial(Material mat)

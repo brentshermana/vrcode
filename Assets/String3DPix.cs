@@ -49,6 +49,11 @@ public class String3DPix : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
+        Debug.Log(arc_position(0));
+        Debug.Log(arc_position(r*Mathf.PI/2));
+        Debug.Log(arc_position(r*Mathf.PI));
+
+
 		x_offset = 0;
 
         special_character_names = new Dictionary<char, string>();
@@ -137,7 +142,7 @@ public class String3DPix : MonoBehaviour {
 	public Vector3 arc_position(float x_offset) {
 		float angle_r = x_offset / r;
 		Vector3 center = getCenter ();
-		return center + (-Mathf.Cos(angle_r) * transform.forward) + (-Mathf.Sin(angle_r) * transform.right);
+		return center + (-Mathf.Cos(angle_r) * transform.forward * r) + (-Mathf.Sin(angle_r) * transform.right * r);
 	}
 
     public void SetContent(string content)
