@@ -8,10 +8,39 @@ using ZenFulcrum.EmbeddedBrowser;
 
 class ViveBrowserUI : MonoBehaviour, IBrowserUI
 {
+    private Browser browser;
+
+    private CursorInput input;
+
+    void Awake()
+    {
+        // tell the browser that this object controls the UI
+        browser = transform.parent.gameObject.GetComponent<Browser>();
+        browser.UIHandler = this;
+
+        inputSettings = new BrowserInputSettings(); //TODO:  set special options?
+
+        browserCursor = new BrowserCursor(); // do we care about anything special?
+        browserCursor.SetActiveCursor(BrowserNative.CursorType.Pointer);
+        //browserCursor.cursorChange += SetCursor;
+        
+        keyEvents = new List<Event>(); // TODO: POPULATE?
+    }
+    
     /** Called once per frame by the browser before fetching properties. */
     public void InputUpdate()
     {
-        //TODO: update properties
+        input = ControllerInputManager.RequestInputStatus(gameObject);
+
+        // extra functionality that I packed in the struct, but that the browser doesn't read
+        if (input.BackPage)
+        {
+            browser.GoBack();
+        }
+        if (input.ForwardPage)
+        {
+            browser.GoForward();
+        }
     }
 
     /**
@@ -19,11 +48,9 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * 
 	 * If this is false, the Mouse* properties will be ignored.
 	 */
-     //TODO: SET
-    private bool mouseHasFocus;
     public bool MouseHasFocus { get
         {
-            return mouseHasFocus;
+            return input.MouseHasFocus;
         }
     }
 
@@ -33,18 +60,27 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * Returns the current position of the mouse with (0, 0) in the bottom-left corner and (1, 1) in the 
 	 * top-right corner.
 	 */
-    // TODO: SEt
-    private Vector2 mousePosition;
     public Vector2 MousePosition { get
         {
-            return mousePosition;
+            return input.MousePosition;
         }
     }
 
     /** Bitmask of currently depressed mouse buttons */
-    //TODO: set
-    private MouseButton mouseButtons;
-    public MouseButton MouseButtons { get { return mouseButtons; } }
+    public MouseButton MouseButtons {
+        get
+        {
+            MouseButton buttons = 0;
+            if (input.LeftClick)
+            {
+                buttons = buttons | MouseButton.Left;
+            }
+            if (input.RightClick) {
+                buttons = buttons | MouseButton.Right;
+            }
+            return buttons;
+        }
+    }
 
     /**
 	 * Delta X and Y scroll values since the last time InputUpdate() was called.
@@ -55,7 +91,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 */
      //TODO: set
     private Vector2 mouseScroll;
-    public Vector2 MouseScroll { get { return mouseScroll; } }
+    public Vector2 MouseScroll { get { return input.MouseScroll; } }
 
     /**
 	 * Returns true when the browser will receive keyboard events.
@@ -64,9 +100,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * 
 	 * If this is false, the Key* properties will be ignored.
 	 */
-     //TODO: set
-    private bool keyboardHasFocus;
-    public bool KeyboardHasFocus { get { return keyboardHasFocus; } }
+    public bool KeyboardHasFocus { get { return true; } }
 
     /**
 	 * List of key up/down events that have happened since the last InputUpdate() call.
@@ -75,7 +109,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 */
      //TODO: set
     private List<Event> keyEvents;
-    public List<Event> KeyEvents { get { return keyEvents; } }
+    public List<Event> KeyEvents { get { return KeyboardInputManager.FlushEvents(); } }
 
     /**
 	 * Returns a BrowserCursor instance. The Browser will update the current cursor to reflect the
@@ -83,16 +117,14 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * 
 	 * The IBrowserUI is responsible for changing the actual cursor, be it the mouse cursor or some in-game display.
 	 */
-     //TODO: set
     private BrowserCursor browserCursor;
     public BrowserCursor BrowserCursor { get { return browserCursor; } }
 
     /**
 	 * These settings are used to interpret the input data.
 	 */
-    //TODO: set
     private BrowserInputSettings inputSettings;
     public BrowserInputSettings InputSettings { get { return inputSettings; } }
-
+    
 
 }
