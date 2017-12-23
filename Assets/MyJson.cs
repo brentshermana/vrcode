@@ -5,16 +5,25 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 public class MyJson {
-    public static ActionableJsonMessage[] fromBytes(byte[] b)
+    public static ActionableJsonMessage[] actionableMessageFromBytes(byte[] b)
     {
         string jsonStr = buf2str(b);
         return JsonConvert.DeserializeObject<ActionableJsonMessage[]>(jsonStr);
     }
 
-    public static byte[] toBytes(ActionableJsonMessage[] messages)
+    public static string stringFromBytes(byte[] b) {
+        string str = buf2str(b);
+        return buf2str(b);
+    }
+
+    public static byte[] actionableMessageToBytes(ActionableJsonMessage[] messages)
     {
         string jsonStr = JsonConvert.SerializeObject(messages);
         return str2buf(jsonStr);
+    }
+
+    public static byte[] stringToBytes(string s) {
+        return str2buf(s);
     }
 
     #region encoding

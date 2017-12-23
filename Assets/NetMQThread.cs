@@ -29,7 +29,7 @@ public class NetMQThread
         AsyncIO.ForceDotNet.Force();
         using (var server = new ResponseSocket())
         {
-            server.Bind("tcp://localhost:12346");
+            server.Bind("tcp://*:12345");
 
             while (!_listenerCancelled)
             {
@@ -40,7 +40,8 @@ public class NetMQThread
                 _contactWatch.Reset();
                 _contactWatch.Start();
 
-                ActionableJsonMessage[] messages = MyJson.fromBytes(message);
+                //ActionableJsonMessage[] messages = MyJson.fromBytes(message);
+                /*
                 foreach (ActionableJsonMessage m in messages)
                 {
                     if (m.Type != "NOP")
@@ -65,8 +66,9 @@ public class NetMQThread
                     ActionableJsonMessage nop = new ActionableJsonMessage("NOP", "", null);
                     outMessages.Add(nop);
                 }
-                byte[] outwardmessage = MyJson.toBytes(outMessages.ToArray());
-                server.SendFrame(outwardmessage);
+                */
+                //byte[] outwardmessage = MyJson.toBytes(outMessages.ToArray());
+                //server.SendFrame(outwardmessage);
             }
         }
         NetMQConfig.Cleanup();
