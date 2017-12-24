@@ -4,16 +4,19 @@ using UnityEngine;
 
 using Newtonsoft.Json;
 
-public class MyJson {
+public class MyConvert {
+    // Deserialization example:
+    // https://www.newtonsoft.com/json/help/html/DeserializeObject.htm
+
+    public static RPCObject rpcobj(byte[] b) {
+        string jsonStr = buf2str(b);
+        return JsonConvert.DeserializeObject<RPCObject>(jsonStr);
+    }
+
     public static ActionableJsonMessage[] actionableMessageFromBytes(byte[] b)
     {
         string jsonStr = buf2str(b);
         return JsonConvert.DeserializeObject<ActionableJsonMessage[]>(jsonStr);
-    }
-
-    public static string stringFromBytes(byte[] b) {
-        string str = buf2str(b);
-        return buf2str(b);
     }
 
     public static byte[] actionableMessageToBytes(ActionableJsonMessage[] messages)
@@ -22,7 +25,13 @@ public class MyJson {
         return str2buf(jsonStr);
     }
 
-    public static byte[] stringToBytes(string s) {
+    public static string stringFromBytes(byte[] b) {
+        string str = buf2str(b);
+        return buf2str(b);
+    }
+
+    public static byte[] stringToBytes(string s)
+    {
         return str2buf(s);
     }
 
@@ -36,5 +45,4 @@ public class MyJson {
         return System.Text.Encoding.UTF8.GetBytes(str);
     }
     #endregion
-
 }
