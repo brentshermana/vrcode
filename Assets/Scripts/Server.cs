@@ -26,7 +26,13 @@ public class Server : MonoBehaviour
         // helpful indicator visible from the unity editor's inspector
         Connected = _netMqPublisher.Connected;
 
-        //check for stdout, errors
+        //check for stdout
+        bool isStdout = false;
+        string stdout = _netMqPublisher.stdoutQueue.TryDequeue(ref isStdout);
+        if (isStdout) {
+            Frontend.Stdout(stdout);
+        }
+        //check for errors
         if (_netMqPublisher.programErrorQueue.Count > 0) {
             bool success = true;
             while (success)
@@ -137,6 +143,7 @@ public class NetMQPublisher
 
     // TODO: what to do with return value??
     private string interaction (RPCObject rpc) {
+        UnityEngine.Debug.Log("Server Interaction args: " + rpc.args);
         // signal to frontend that it should send a command to backend:
         this.interactionArgs = new InteractionArgs(
                         rpc.args[0],
@@ -237,7 +244,8 @@ public class NetMQPublisher
                     readFlag = true;
                     // will block until user inserts into queue
                     string line = stdinQueue.Dequeue();
-                    ret = MyConvert.stringToBytes(line);
+                    rpc.result = line;
+                    ret = MyConvert.rpcobj(rpc);
                     break;
                 case "write":
                     foreach (string s in rpc.args)
@@ -323,6 +331,10 @@ public class NetMQPublisher
     public void Stop()
     {
         _listenerCancelled = true;
-        // _listenerWorker.Join();
+        server.Close();
+
+        //  Note: both of the following cause the unity editor to hang/crash
+        //NetMQConfig.Cleanup();
+        //_listenerWorker.Join();
     }
 }

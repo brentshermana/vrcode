@@ -7,15 +7,21 @@ using DBNotif;
 
 public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
 
-    public Text DisplayText;
+    public Text PromptText;
+    public Text CurrentCodeLineText;
+
+    public Text StdinText;
+    public Text StdoutText;
+
     public Transform buttonsParent;
 
-    public Text InputText; // used for adding arguments to buttons
+
 
     private ConcurrentQueue<RPCObject> commandFeed;
     private ConcurrentQueue<string> stdin;
 
     private Dictionary<string, Button> buttons = new Dictionary<string, Button>();
+
 
 
 	// Use this for initialization
@@ -49,90 +55,103 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
 
     // Button Events:
     private void Continue() {
-        display("Continue Registered");
+        DisplayPrompt("Continue Registered");
         this.commandFeed.Enqueue(RPCObject.Request("do_continue", null, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void ReadLine() {
-        string line = InputText.text;
-        InputText.text = "";
-        display(("Line Read: " + line));
+        UnityEngine.Debug.Log("Std is null " + (stdin == null));
+        string line = StdinText.text;
+        StdinText.text = "";
+        DisplayPrompt(("Line Read: " + line));
         stdin.Enqueue(line);
         stdin = null;
         SetActive(false);
     }
     private void Step() {
-        display("Step Registered");
+        DisplayPrompt("Step Registered");
         this.commandFeed.Enqueue(RPCObject.Request("do_step", null, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Next()
     {
-        display("Next Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_next", null, 0)); // id will be reset
+        DisplayPrompt("Next Registered");
+        this.commandFeed.Enqueue(RPCObject.Request("do_next", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Return()
     {
-        display("Return Registered");
+        DisplayPrompt("Return Registered");
         this.commandFeed.Enqueue(RPCObject.Request("do_return", null, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Where()
     {
-        display("Where Registered");
+        DisplayPrompt("Where Registered");
         this.commandFeed.Enqueue(RPCObject.Request("do_where", null, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Quit()
     {
-        display("Debugging Session Ended");
+        DisplayPrompt("Debugging Session Ended");
         this.commandFeed.Enqueue(RPCObject.Request("do_quit", null, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Environment()
     {
-        display("Environment Registered");
+        DisplayPrompt("Environment Registered");
         this.commandFeed.Enqueue(RPCObject.Request("do_environment", null, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
 
 
-    // Interface functions
+    // Interface functions, called by debugger interface
     public void ProgramErrorNotif(ProgramError err) {
-        display(err.ToString());
+        DisplayPrompt(err.ToString());
     }
     public void DebuggerErrorNotif(DebuggerError err) {
-        display(err.ToString());
+        DisplayPrompt(err.ToString());
     }
     public void ReadReady(ConcurrentQueue<string> stdin_) {
+        //just want the one button to be active
+        SetActive(false);
+        buttons["ReadLine"].interactable = true;
         this.stdin = stdin_;
-        display("Read Line"); 
+        UnityEngine.Debug.Log("Std is null " + (stdin == null));
+        DisplayPrompt("Read Line"); 
     } 
     //TODO: add file, line number as arguments
     public void InteractionReady(InteractionArgs args, ConcurrentQueue<RPCObject> commandFeed_) {
-        display("Interaction");
+        DisplayCodeLine(args);
+        DisplayPrompt("Interaction");
         this.commandFeed = commandFeed_;
         SetActive(true);
     }
     public void DBQuit() {
-        display("Debugger Quit");
+        DisplayPrompt("Debugger Quit");
         SetActive(false);
+    }
+    public void Stdout(string output) {
+        UnityEngine.Debug.Log("Stdout " + output);
+        StdoutText.text += output;
     }
 
 
 
     //helper functions
-    private void display(string s) {
+    private void DisplayPrompt(string s) {
         Debug.Log("Frontend: " + s);
-        DisplayText.text = s;
+        PromptText.text = s;
+    }
+    private void DisplayCodeLine(InteractionArgs args) {
+        CurrentCodeLineText.text = args.ToString();
     }
     private void SetActive(bool active) {
         foreach (Button b in buttons.Values) {

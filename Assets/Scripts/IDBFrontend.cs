@@ -10,4 +10,5 @@ public interface IDBFrontend {
     void ReadReady(ConcurrentQueue<string> stdin); // prompts user to input a string (readline)
     void InteractionReady(InteractionArgs args, ConcurrentQueue<RPCObject> commandFeed); // signals readiness for inputs
     void DBQuit(); // backend signals that it's done
+    void Stdout(string output); // for printing program output
 }
