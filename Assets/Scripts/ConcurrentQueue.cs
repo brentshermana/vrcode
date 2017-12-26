@@ -99,5 +99,4 @@ public class ConcurrentQueue<T>
             return queue.Dequeue();
         }
     }
-
 }
