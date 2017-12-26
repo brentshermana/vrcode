@@ -8,6 +8,7 @@ public class ConcurrentQueue<T>
 {
     private readonly object syncLock = new object();
     private Queue<T> queue;
+    private Semaphore count_sem;
     
     public int Count
     {
@@ -25,25 +26,18 @@ public class ConcurrentQueue<T>
     public ConcurrentQueue()
 
     {
-
         this.queue = new Queue<T>();
-
+        this.count_sem = new Semaphore(0, int.MaxValue);
     }
 
 
 
     public T Peek()
-
     {
-
         lock (syncLock)
-
         {
-
             return queue.Peek();
-
         }
-
     }
 
     public bool TryEnqueue(T obj)
@@ -53,6 +47,7 @@ public class ConcurrentQueue<T>
         {
             queue.Enqueue(obj);
             Monitor.Exit(syncLock);
+            count_sem.Release();
             return true;
         }
     }
@@ -68,6 +63,7 @@ public class ConcurrentQueue<T>
         {
             if (queue.Count > 0)
             {
+                count_sem.WaitOne(); // only acceptable within the lock because we know this won't block
                 ret = queue.Dequeue();
                 success = true;
             }
@@ -80,20 +76,14 @@ public class ConcurrentQueue<T>
         return ret;
     }
 
-
-
     public void Enqueue(T obj)
-
     {
-
         lock (syncLock)
 
         {
-
             queue.Enqueue(obj);
-
         }
-
+        count_sem.Release();
     }
 
 
@@ -101,95 +91,13 @@ public class ConcurrentQueue<T>
     public T Dequeue()
 
     {
-
+        // outside lock to avoid waiting on sem within lock
+        // which would result in a deadlock
+        count_sem.WaitOne();
         lock (syncLock)
-
         {
-
             return queue.Dequeue();
-
         }
-
-    }
-
-
-
-    public void Clear()
-
-    {
-
-        lock (syncLock)
-
-        {
-
-            queue.Clear();
-
-        }
-
-    }
-
-
-
-    public T[] CopyToArray()
-
-    {
-
-        lock (syncLock)
-
-        {
-
-            if (queue.Count == 0)
-
-            {
-
-                return new T[0];
-
-            }
-
-
-
-            T[] values = new T[queue.Count];
-
-            queue.CopyTo(values, 0);
-
-            return values;
-
-        }
-
-    }
-
-
-
-    public static ConcurrentQueue<T> InitFromArray(IEnumerable<T> initValues)
-
-    {
-
-        var queue = new ConcurrentQueue<T>();
-
-
-
-        if (initValues == null)
-
-        {
-
-            return queue;
-
-        }
-
-
-
-        foreach (T val in initValues)
-
-        {
-
-            queue.Enqueue(val);
-
-        }
-
-
-
-        return queue;
-
     }
 
 }
