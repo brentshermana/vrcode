@@ -10,7 +10,14 @@ public class MyConvert {
 
     public static RPCObject rpcobj(byte[] b) {
         string jsonStr = buf2str(b);
-        return JsonConvert.DeserializeObject<RPCObject>(jsonStr);
+        try
+        {
+            return JsonConvert.DeserializeObject<RPCObject>(jsonStr);
+        }
+        catch (JsonReaderException e) {
+            UnityEngine.Debug.LogError("RPCObject failed to parse:\n" + jsonStr);
+            throw e;
+        }
     }
     public static byte[] rpcobj(RPCObject rpc) {
         string jsonStr = JsonConvert.SerializeObject(rpc);
