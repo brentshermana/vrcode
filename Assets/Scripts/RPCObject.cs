@@ -17,7 +17,7 @@ public class RPCObject
 
     // response
     public string result { get; set; }
-    public string error { get; set; }
+    public RPCError error { get; set; }
 
     public RPCObject() {
         this.jsonrpc = "1.1";
@@ -32,7 +32,7 @@ public class RPCObject
         return rpc;
     }
 
-    public static RPCObject Response(string r, string e, int i)
+    public static RPCObject Response(string r, RPCError e, int i)
     {
         RPCObject rpc = new RPCObject();
         rpc.result = r;
@@ -40,4 +40,19 @@ public class RPCObject
         rpc.id = i;
         return rpc;
     }
+}
+
+public class RPCError {
+    public RPCError(int code_, string message_) {
+        code = code_;
+        message = message_;
+    }
+
+    public override string ToString()
+    {
+        return string.Format("[RPCError: code={0}, message={1}]", code, message);
+    }
+
+    public int code { get; set; }
+    public string message { get; set; }
 }
