@@ -19,6 +19,11 @@ namespace DBNotif {
             this.line = line_;
         }
 
+        public override string ToString()
+        {
+            return string.Format("{0} ({1}) => {2}", filename, lineno, line);
+        }
+
         public string filename { get; set; }
         public string lineno { get; set; }
         public string line { get; set; }
