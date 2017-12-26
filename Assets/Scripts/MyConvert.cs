@@ -12,6 +12,10 @@ public class MyConvert {
         string jsonStr = buf2str(b);
         return JsonConvert.DeserializeObject<RPCObject>(jsonStr);
     }
+    public static byte[] rpcobj(RPCObject rpc) {
+        string jsonStr = JsonConvert.SerializeObject(rpc);
+        return str2buf(jsonStr);
+    }
 
     public static ActionableJsonMessage[] actionableMessageFromBytes(byte[] b)
     {
