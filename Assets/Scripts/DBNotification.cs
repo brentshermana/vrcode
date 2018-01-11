@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 //public enum DBNotificationType
 //{
@@ -12,6 +13,71 @@ using System.Collections;
 //};
 
 namespace DBNotif {
+
+    // for return values which frontend requested through interaction loop
+    public class InteractionResult {
+        public InteractionResult(string method_, string result_) {
+            Result = result_;
+            Method = method_;
+        }
+
+        public string Result { get; set; }
+        public string Method { get; set; }
+    }
+
+    public class DBStackTraceElement {
+        public override string ToString()
+        {
+            return string.Format("[{0}:{1}    {2}]", fname, lineno, line.Trim());
+        }
+
+        public string fname { get; set; }
+        public string lineno { get; set; }
+        public string line { get; set; }
+    }
+
+    public class DBStackTrace {
+        public override string ToString()
+        {
+            string str = "Stack Trace:";
+            foreach (DBStackTraceElement element in trace) {
+                str += "\n";
+                str += element.ToString();   
+            }
+            return str;
+        }
+
+        public List<DBStackTraceElement> trace { get; set; }
+    }
+
+    public class Variable {
+
+        public override string ToString()
+        {
+            return string.Format("[name={0}, value={1}, type={2}]", name, val, type);
+        }
+
+        public string name { get; set; }
+        public string val { get; set; }
+        public string type { get; set; }
+    }
+
+    public class DBEnvironment {
+        public override string ToString()
+        {
+            string locals_str = "===LOCALS===";
+            foreach (var variable in locals)
+                locals_str += "\n" + variable.ToString();
+            string globals_str = "\n===GLOBALS===";
+            foreach (var global_ in globals)
+                globals_str += "\n" + global_.ToString();
+            return "Environment:\n" + locals_str + globals_str;
+        }
+
+        public List<Variable> locals { get; set; }
+        public List<Variable> globals { get; set; }
+    }
+
     public class InteractionArgs {
         public InteractionArgs(string filename_, string lineno_, string line_) {
             this.filename = filename_;

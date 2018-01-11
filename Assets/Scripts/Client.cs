@@ -26,7 +26,8 @@ public class Client : MonoBehaviour
 
     private void OnDestroy()
     {
-        _netMqListener.Stop();
+        if (_netMqListener != null)
+            _netMqListener.Stop();
     }
 }
 

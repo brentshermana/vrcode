@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
+using System;
 using System.Threading;
 using NetMQ;
 using NetMQ.Sockets;
 using UnityEngine;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System;
+// using System;
 using DBNotif;
 
 public class Server : MonoBehaviour
@@ -14,11 +14,24 @@ public class Server : MonoBehaviour
     public GuiDBFrontend Frontend;
     private NetMQPublisher _netMqPublisher;
     private string _response;
+    private ConcurrentQueue<InteractionResult> ResultQueue = new ConcurrentQueue<InteractionResult>();
 
     private void Start()
     {
-        _netMqPublisher = new NetMQPublisher();
+        _netMqPublisher = new NetMQPublisher(ResultQueue);
         _netMqPublisher.Start();
+    }
+
+    private void NotifyFrontend(InteractionResult result) {
+        switch (result.Method)
+        {
+            case ("do_environment"):
+                Frontend.Result(MyConvert.fromjson<DBEnvironment>(result.Result));
+                break;
+            case ("do_where"):
+                Frontend.Result(MyConvert.fromjson<DBStackTrace>(result.Result));
+                break;
+        }
     }
 
     private void Update()
@@ -26,6 +39,19 @@ public class Server : MonoBehaviour
         // helpful indicator visible from the unity editor's inspector
         Connected = _netMqPublisher.Connected;
 
+        //TODO: code for reading from queues is inelegant. We should be able to:
+        //  1) combine queues so that we have as few queues as possible, and a
+        //      unified way of dealing with them (as in frontend.Result())
+        //  2) abstract out control flow for reading from queues into a func
+        if (ResultQueue.Count > 0) {
+            bool success = true;
+            while (success) {
+                InteractionResult result = ResultQueue.TryDequeue(ref success);
+                if (success) {
+                    NotifyFrontend(result);
+                }
+            }
+        }
         //check for stdout
         bool isStdout = false;
         string stdout = _netMqPublisher.stdoutQueue.TryDequeue(ref isStdout);
@@ -62,7 +88,7 @@ public class Server : MonoBehaviour
         }
         if (_netMqPublisher.interactionFlag) {
             _netMqPublisher.interactionFlag = false;
-            Frontend.InteractionReady(_netMqPublisher.interactionArgs, _netMqPublisher.interactionQueue);
+            Frontend.InteractionReady(_netMqPublisher.interactionArgs,  _netMqPublisher.interactionQueue);
         }
         if (_netMqPublisher.quitFlag) {
             // don't reset quit flag, it indicates that NetMQ communication should cease
@@ -78,6 +104,21 @@ public class Server : MonoBehaviour
 
 public class NetMQPublisher
 {
+    public NetMQPublisher(ConcurrentQueue<InteractionResult> ResultQueue_) {
+        ResultQueue = ResultQueue_;
+
+        _contactWatch = new Stopwatch();
+        _contactWatch.Start();
+        _listenerWorker = new Thread(ListenerWork);
+        _listenerWorker.IsBackground = true; // hopefully this keeps thread from crashing unity
+
+        // waitspan is the maximum tolerable latency between a user-level interrupt
+        // request and the thread's conclusion
+        waitSpan = new TimeSpan(0, 0, 0, 0, 100); // 100 millis
+    }
+
+    private ConcurrentQueue<InteractionResult> ResultQueue;
+
     private readonly Thread _listenerWorker;
 
     private bool _listenerCancelled;
@@ -98,7 +139,7 @@ public class NetMQPublisher
     public ConcurrentQueue<byte[]> sendQueue = new ConcurrentQueue<byte[]>();
     public ConcurrentQueue<byte[]> recvQueue = new ConcurrentQueue<byte[]>();
 
-    public ConcurrentQueue<RPCObject> interactionQueue = new ConcurrentQueue<RPCObject>();
+    public ConcurrentQueue<RPCMessage> interactionQueue = new ConcurrentQueue<RPCMessage>();
 
     public ConcurrentQueue<string> stdoutQueue = new ConcurrentQueue<string>();
     public ConcurrentQueue<string> stdinQueue = new ConcurrentQueue<string>();
@@ -142,8 +183,8 @@ public class NetMQPublisher
     }
 
     // TODO: what to do with return value??
-    private string interaction (RPCObject rpc) {
-        UnityEngine.Debug.Log("Server Interaction args: " + rpc.args);
+    private string interaction (RPCMessage rpc) {
+        //UnityEngine.Debug.Log("Server Interaction args: " + rpc.args);
         // signal to frontend that it should send a command to backend:
         this.interactionArgs = new InteractionArgs(
                         rpc.args[0],
@@ -153,7 +194,7 @@ public class NetMQPublisher
         this.interactionFlag = true;
 
         // get the request from frontend:
-        RPCObject req = this.interactionQueue.Dequeue();
+        RPCMessage req = this.interactionQueue.Dequeue();
         // make sure it has the right id
         req.id = i;
         i += 1;
@@ -162,12 +203,15 @@ public class NetMQPublisher
         // now wait for response
         while (true) {
             byte[] recvBuf = blockingRecv(server);
-            RPCObject response = MyConvert.rpcobj(recvBuf);
+            RPCMessage response = MyConvert.rpcobj(recvBuf);
+            UnityEngine.Debug.Log("Response:\n" + response.ToString());
             if (response.id == -1) {
-                // notification... should be processed later (TODO: why?)
+                UnityEngine.Debug.Log("...Response is a notification");
+                // notification... should be processed later
                 this.notifications.Enqueue(recvBuf);
             }
-            else if (response.result != null) {
+            else if (response.result == null) {
+                UnityEngine.Debug.Log("...Response is a request");
                 // request... should be processed now
                 processMessage(recvBuf);
             }
@@ -178,14 +222,22 @@ public class NetMQPublisher
                 UnityEngine.Debug.LogError("Response error for method " + req.method + " : " + response.error);
             }
             else {
-                return response.result;
+                //// some methods require explicitly passing return value to frontend:
+                //switch (req.method) {
+                //    case "where":
+                //        stackTrace = response.result;
+                //        break;
+                //}
+                UnityEngine.Debug.Log("...Response is the desired return value: " + response.result);
+                // TODO: parse result according to the method type and send object to frontend
+                ResultQueue.Enqueue(new InteractionResult(req.method, response.result));
             }
         }
     }
 
     private void processMessage(byte[] message)
     {
-        RPCObject rpc;
+        RPCMessage rpc;
         try
         {
             rpc = MyConvert.rpcobj(message);
@@ -197,7 +249,10 @@ public class NetMQPublisher
         }
         processMessage(rpc);
     }
-    private void processMessage(RPCObject rpc) {
+    private void processMessage(RPCMessage rpc) {
+
+        UnityEngine.Debug.Log(rpc);
+
         byte[] ret = null;
 
         // incoming message denotes an error that was thrown by the debugger's code
@@ -225,7 +280,7 @@ public class NetMQPublisher
                     break;
                 case "startup":
                     // TODO: store args given
-                    RPCObject request = RPCObject.Request("run", new List<string>(), i);
+                    RPCMessage request = RPCMessage.Request("run", new List<string>(), i);
                     i += 1;
                     ret = MyConvert.rpcobj(request);
                     break;
@@ -310,18 +365,6 @@ public class NetMQPublisher
         NetMQConfig.Cleanup();
     }
 
-    public NetMQPublisher()
-    {
-        _contactWatch = new Stopwatch();
-        _contactWatch.Start();
-        _listenerWorker = new Thread(ListenerWork);
-        _listenerWorker.IsBackground = true; // hopefully this keeps thread from crashing unity
-
-        // waitspan is the maximum tolerable latency between a user-level interrupt
-        // request and the thread's conclusion
-        waitSpan = new TimeSpan(0, 0, 0, 0, 100); // 100 millis
-    }
-
     public void Start()
     {
         _listenerCancelled = false;
@@ -331,7 +374,8 @@ public class NetMQPublisher
     public void Stop()
     {
         _listenerCancelled = true;
-        server.Close();
+        if (server != null)
+            server.Close();
 
         //  Note: both of the following cause the unity editor to hang/crash
         //NetMQConfig.Cleanup();

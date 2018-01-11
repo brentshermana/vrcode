@@ -51,7 +51,7 @@ public class MyNetMQThread
             string messageStr = MyConvert.stringFromBytes(message);
             UnityEngine.Debug.Log("Received : " + messageStr);
 
-            RPCObject obj = MyConvert.rpcobj(message); // TODO: expected to throw an error sometimes
+            RPCMessage obj = MyConvert.rpcobj(message); // TODO: expected to throw an error sometimes
 
             // garbage reply:
             byte[] outwardmessage = MyConvert.stringToBytes("Message from Unity");

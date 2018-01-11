@@ -8,18 +8,40 @@ public class MyConvert {
     // Deserialization example:
     // https://www.newtonsoft.com/json/help/html/DeserializeObject.htm
 
-    public static RPCObject rpcobj(byte[] b) {
+    public int str2int(string s) {
+        return int.Parse(s.Trim());
+    }
+    public string int2str(int i) {
+        return i.ToString();
+    }
+
+    public static T fromjson<T>(byte[] b) {
+        return fromjson<T>(buf2str(b));
+    }
+    public static T fromjson<T>(string s) {
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(s);
+        }
+        catch (JsonReaderException e)
+        {
+            UnityEngine.Debug.LogError(string.Format("failed to parse:\n{0}", s));
+            throw e;
+        }
+    }
+
+    public static RPCMessage rpcobj(byte[] b) {
         string jsonStr = buf2str(b);
         try
         {
-            return JsonConvert.DeserializeObject<RPCObject>(jsonStr);
+            return JsonConvert.DeserializeObject<RPCMessage>(jsonStr);
         }
         catch (JsonReaderException e) {
             UnityEngine.Debug.LogError("RPCObject failed to parse:\n" + jsonStr);
             throw e;
         }
     }
-    public static byte[] rpcobj(RPCObject rpc) {
+    public static byte[] rpcobj(RPCMessage rpc) {
         string jsonStr = JsonConvert.SerializeObject(rpc);
         return str2buf(jsonStr);
     }

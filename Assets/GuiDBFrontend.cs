@@ -17,7 +17,7 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
 
 
 
-    private ConcurrentQueue<RPCObject> commandFeed;
+    private ConcurrentQueue<RPCMessage> commandFeed;
     private ConcurrentQueue<string> stdin;
 
     private Dictionary<string, Button> buttons = new Dictionary<string, Button>();
@@ -42,6 +42,8 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         buttons["Where"].onClick.AddListener(Where);
         buttons["Quit"].onClick.AddListener(Quit);
         buttons["Environment"].onClick.AddListener(Environment);
+        buttons["Jump"].onClick.AddListener(Jump);
+        buttons["Eval"].onClick.AddListener(Eval);
 
         // disable buttons until interaction
         SetActive(false);
@@ -56,12 +58,12 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
     // Button Events:
     private void Continue() {
         DisplayPrompt("Continue Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_continue", null, 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_continue", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void ReadLine() {
-        UnityEngine.Debug.Log("Std is null " + (stdin == null));
+        //UnityEngine.Debug.Log("Std is null " + (stdin == null));
         string line = StdinText.text;
         StdinText.text = "";
         DisplayPrompt(("Line Read: " + line));
@@ -71,42 +73,61 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
     }
     private void Step() {
         DisplayPrompt("Step Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_step", null, 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_step", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Next()
     {
         DisplayPrompt("Next Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_next", new List<string>(), 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_next", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Return()
     {
         DisplayPrompt("Return Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_return", null, 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_return", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Where()
     {
         DisplayPrompt("Where Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_where", null, 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_where", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Quit()
     {
         DisplayPrompt("Debugging Session Ended");
-        this.commandFeed.Enqueue(RPCObject.Request("do_quit", null, 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_quit", new List<string>(), 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
     private void Environment()
     {
         DisplayPrompt("Environment Registered");
-        this.commandFeed.Enqueue(RPCObject.Request("do_environment", null, 0)); // id will be reset
+        this.commandFeed.Enqueue(RPCMessage.Request("do_environment", new List<string>(), 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+    private void Jump() {
+        //TODO:
+        string line = StdinText.text.Trim();
+        StdinText.text = "";
+        List<string> args = new List<string>();
+        args.Add(line);
+        this.commandFeed.Enqueue(RPCMessage.Request("do_jump", args, 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+    private void Eval() {
+        string expression = StdinText.text.Trim();
+        StdinText.text = "";
+        List<string> args = new List<string>();
+        args.Add(expression);
+        this.commandFeed.Enqueue(RPCMessage.Request("do_eval", args, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
@@ -124,11 +145,11 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         SetActive(false);
         buttons["ReadLine"].interactable = true;
         this.stdin = stdin_;
-        UnityEngine.Debug.Log("Std is null " + (stdin == null));
+        //UnityEngine.Debug.Log("Std is null " + (stdin == null));
         DisplayPrompt("Read Line"); 
     } 
     //TODO: add file, line number as arguments
-    public void InteractionReady(InteractionArgs args, ConcurrentQueue<RPCObject> commandFeed_) {
+    public void InteractionReady(InteractionArgs args, ConcurrentQueue<RPCMessage> commandFeed_) {
         DisplayCodeLine(args);
         DisplayPrompt("Interaction");
         this.commandFeed = commandFeed_;
@@ -139,15 +160,23 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         SetActive(false);
     }
     public void Stdout(string output) {
-        UnityEngine.Debug.Log("Stdout " + output);
+        //UnityEngine.Debug.Log("Stdout " + output);
         StdoutText.text += output;
+    }
+
+    // TODO: actually implement?
+    public void Result(DBEnvironment env) {
+        Debug.Log(env);
+    }
+    public void Result(DBStackTrace trace) {
+        Debug.Log(trace);
     }
 
 
 
     //helper functions
     private void DisplayPrompt(string s) {
-        Debug.Log("Frontend: " + s);
+        //Debug.Log("Frontend: " + s);
         PromptText.text = s;
     }
     private void DisplayCodeLine(InteractionArgs args) {
