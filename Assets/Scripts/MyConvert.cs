@@ -15,6 +15,16 @@ public class MyConvert {
         return i.ToString();
     }
 
+    public static string tojson(Object o) {
+        return JsonConvert.SerializeObject(o);
+    }
+    public static string tojson(string s) {
+        // replace existing double quotations with escaped quotations
+        s.Replace("\"", "\\\"");
+        // strings need to be wrapped in double quotations
+        return "\"" + s + "\"";
+    }
+
     public static T fromjson<T>(byte[] b) {
         return fromjson<T>(buf2str(b));
     }

@@ -16,4 +16,7 @@ public interface IDBFrontend {
     // sent from frontend
     void Result(DBEnvironment env);
     void Result(DBStackTrace trace);
+    void Result(DBEvalResult eval_result);
+    void Result(List<DBBreakpoint> breakpoints);
+    void Result(DBExecResult exec_result);
 }

@@ -10,6 +10,7 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
     public Text PromptText;
     public Text CurrentCodeLineText;
 
+    public Text[] Args;
     public Text StdinText;
     public Text StdoutText;
 
@@ -44,6 +45,11 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         buttons["Environment"].onClick.AddListener(Environment);
         buttons["Jump"].onClick.AddListener(Jump);
         buttons["Eval"].onClick.AddListener(Eval);
+        buttons["Set BP"].onClick.AddListener(SetBP);
+        buttons["Clear BP"].onClick.AddListener(ClearBP);
+        buttons["Clear File BPs"].onClick.AddListener(ClearFileBPs);
+        buttons["List BPs"].onClick.AddListener(ListBPs);
+        buttons["Exec"].onClick.AddListener(Exec);
 
         // disable buttons until interaction
         SetActive(false);
@@ -113,9 +119,7 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         SetActive(false);
     }
     private void Jump() {
-        //TODO:
-        string line = StdinText.text.Trim();
-        StdinText.text = "";
+        string line = GetArg(0);
         List<string> args = new List<string>();
         args.Add(line);
         this.commandFeed.Enqueue(RPCMessage.Request("do_jump", args, 0)); // id will be reset
@@ -123,14 +127,51 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         SetActive(false);
     }
     private void Eval() {
-        string expression = StdinText.text.Trim();
-        StdinText.text = "";
+        string expression = GetArg(0);
         List<string> args = new List<string>();
         args.Add(expression);
         this.commandFeed.Enqueue(RPCMessage.Request("do_eval", args, 0)); // id will be reset
         this.commandFeed = null;
         SetActive(false);
     }
+    private void SetBP() {
+        string fname = "/Users/brentshermana/dev/repos/vrcode_backend/test.py";//GetArg(0);
+        string lineno = GetArg(1);
+        Debug.Log("Set BP : " + fname + " : " + lineno);
+        // the backend only wants one arg, which is the filename and lineno concatenated with a colon
+        List<string> args = new List<string>(new string[] { fname, lineno });
+        this.commandFeed.Enqueue(RPCMessage.Request("do_set_breakpoint", args, 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+    private void ClearBP() {
+        string fname = GetArg(0);
+        string lineno = GetArg(1);
+        List<string> args = new List<string>(new string[] { fname, lineno });
+        this.commandFeed.Enqueue(RPCMessage.Request("do_clear_breakpoint", args, 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+    private void ClearFileBPs() {
+        string fname = GetArg(0);
+        List<string> args = new List<string>(new string[] { fname });
+        this.commandFeed.Enqueue(RPCMessage.Request("do_clear_file_breakpoints", args, 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+    private void ListBPs() {
+        List<string> args = new List<string>();
+        this.commandFeed.Enqueue(RPCMessage.Request("do_list_breakpoint", args, 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+    private void Exec() {
+        List<string> args = new List<string>(new string[]{GetArg(0)});
+        this.commandFeed.Enqueue(RPCMessage.Request("do_exec", args, 0)); // id will be reset
+        this.commandFeed = null;
+        SetActive(false);
+    }
+
 
 
     // Interface functions, called by debugger interface
@@ -164,17 +205,38 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         StdoutText.text += output;
     }
 
-    // TODO: actually implement?
+
+
+    // TODO: implement with better GUI functions... if you really want to
     public void Result(DBEnvironment env) {
         Debug.Log(env);
     }
     public void Result(DBStackTrace trace) {
         Debug.Log(trace);
     }
+    public void Result(DBEvalResult eval_result) {
+        Debug.Log("Eval: " + eval_result.Result);
+    }
+    public void Result(List<DBBreakpoint> breakpoints) {
+        string s = "Breakpoints:\n";
+        foreach (DBBreakpoint b in breakpoints) {
+            s += b.ToString();
+            s += "\n===============================\n";
+        }
+        Debug.Log(s);
+    }
+    public void Result(DBExecResult exec_result) {
+        Debug.Log("Exec Result: " + exec_result.Result);
+    }
 
 
 
     //helper functions
+    private string GetArg(int i) {
+        string ret = Args[i].text.Trim();
+        Args[i].text = "";
+        return ret;
+    }
     private void DisplayPrompt(string s) {
         //Debug.Log("Frontend: " + s);
         PromptText.text = s;
@@ -183,8 +245,7 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         CurrentCodeLineText.text = args.ToString();
     }
     private void SetActive(bool active) {
-        foreach (Button b in buttons.Values) {
+        foreach (Button b in buttons.Values)
             b.interactable = active;
-        }
     }
 }

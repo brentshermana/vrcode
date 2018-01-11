@@ -31,6 +31,15 @@ public class Server : MonoBehaviour
             case ("do_where"):
                 Frontend.Result(MyConvert.fromjson<DBStackTrace>(result.Result));
                 break;
+            case ("do_eval"):
+                Frontend.Result(new DBEvalResult(result.Result));
+                break;
+            case ("do_list_breakpoint"):
+                Frontend.Result(MyConvert.fromjson<List<DBBreakpoint>>(result.Result));
+                break;
+            case ("do_exec"):
+                Frontend.Result(new DBExecResult(result.Result));
+                break;
         }
     }
 
@@ -163,6 +172,7 @@ public class NetMQPublisher
             NetMQConfig.Cleanup();
             Thread.CurrentThread.Abort();
         }
+
     }
 
     // actual blocking recvs exist, but don't check for thread interrupt requests
@@ -205,7 +215,19 @@ public class NetMQPublisher
             byte[] recvBuf = blockingRecv(server);
             RPCMessage response = MyConvert.rpcobj(recvBuf);
             UnityEngine.Debug.Log("Response:\n" + response.ToString());
-            if (response.id == -1) {
+            if (response.id == req.id && response.method == req.method) {
+                if (response.error != null)
+                {
+                    UnityEngine.Debug.LogError("Response error for method " + req.method + " : " + response.error);
+                }
+                else
+                {
+                    UnityEngine.Debug.Log("...Response is the desired return value: " + response.result);
+                    ResultQueue.Enqueue(new InteractionResult(req.method, response.result));
+                    return response.result;
+                }
+            }
+            else if (response.id == -1) {
                 UnityEngine.Debug.Log("...Response is a notification");
                 // notification... should be processed later
                 this.notifications.Enqueue(recvBuf);
@@ -218,19 +240,8 @@ public class NetMQPublisher
             else if (response.id != req.id) {
                 UnityEngine.Debug.LogError("Response had id " + response.id + ", but was expecting " + req.id);
             }
-            else if (response.error != null) {
-                UnityEngine.Debug.LogError("Response error for method " + req.method + " : " + response.error);
-            }
             else {
-                //// some methods require explicitly passing return value to frontend:
-                //switch (req.method) {
-                //    case "where":
-                //        stackTrace = response.result;
-                //        break;
-                //}
-                UnityEngine.Debug.Log("...Response is the desired return value: " + response.result);
-                // TODO: parse result according to the method type and send object to frontend
-                ResultQueue.Enqueue(new InteractionResult(req.method, response.result));
+                UnityEngine.Debug.LogError("Unknown State!");
             }
         }
     }
@@ -299,7 +310,7 @@ public class NetMQPublisher
                     readFlag = true;
                     // will block until user inserts into queue
                     string line = stdinQueue.Dequeue();
-                    rpc.result = line;
+                    rpc.result = MyConvert.tojson(line);
                     ret = MyConvert.rpcobj(rpc);
                     break;
                 case "write":

@@ -28,7 +28,9 @@ public class RPCMessage
 
     public override string ToString()
     {
-        return string.Format("RPCObject:\n\nid={0}\njsonrpc={1}\nmethod={2}\nargs={3}\nresult={4}\nerror={5}", id, jsonrpc, method, args, result, error);
+        string argstr = "";
+        if (args != null) argstr = string.Join(" , ", args.ToArray());
+        return string.Format("RPCMessage:\n\nid={0}\njsonrpc={1}\nmethod={2}\nargs={3}\nresult={4}\nerror={5}", id, jsonrpc, method, argstr, result, error);
     }
 
     // helper constructors
