@@ -145,7 +145,7 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         SetActive(false);
     }
     private void ClearBP() {
-        string fname = GetArg(0);
+        string fname = "/Users/brentshermana/dev/repos/vrcode_backend/test.py";//GetArg(0);
         string lineno = GetArg(1);
         List<string> args = new List<string>(new string[] { fname, lineno });
         this.commandFeed.Enqueue(RPCMessage.Request("do_clear_breakpoint", args, 0)); // id will be reset
@@ -153,7 +153,7 @@ public class GuiDBFrontend : MonoBehaviour, IDBFrontend {
         SetActive(false);
     }
     private void ClearFileBPs() {
-        string fname = GetArg(0);
+        string fname = "/Users/brentshermana/dev/repos/vrcode_backend/test.py";//GetArg(0);
         List<string> args = new List<string>(new string[] { fname });
         this.commandFeed.Enqueue(RPCMessage.Request("do_clear_file_breakpoints", args, 0)); // id will be reset
         this.commandFeed = null;
