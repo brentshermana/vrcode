@@ -8,6 +8,62 @@ using ZenFulcrum.EmbeddedBrowser;
 
 class ViveBrowserUI : MonoBehaviour, IBrowserUI
 {
+    private bool click = false;
+    private bool justclicked = false; // for the next update after the click
+    private Vector2 clickCoord = Vector2.zero;
+    public int intersectingLeapBones = 0;
+    public float maxraycast;
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.gameObject.layer == LayerMask.NameToLayer("LeapHands"))
+        {
+            Debug.Log("Hooray!");
+            if (intersectingLeapBones == 0)
+            {
+                RaycastHit hit = new RaycastHit();
+                int mask = 1 << gameObject.layer; // the goal is to fire a raycast at this object
+                Transform otherObject = col.gameObject.transform;
+
+                // get the point of impact by averaging all contact points
+                Vector3 impactPoint = Vector3.zero;
+                foreach (ContactPoint cpt in col.contacts)
+                {
+                    Debug.Log("Impact Point " + cpt.point);
+                    impactPoint += cpt.point;
+                }
+                impactPoint /= col.contacts.Length;
+
+                Vector3 rayDirection = impactPoint - otherObject.position;
+                Ray ray = new Ray(otherObject.position, rayDirection);
+                if (Physics.Raycast(ray, out hit, maxraycast, mask)) // && hit.collider.gameObject.Equals(gameObject))
+                {
+                    clickCoord = hit.textureCoord;
+                    Debug.Log("Texture Coord: " + hit.textureCoord);
+                    click = true;
+                }
+                else
+                {
+                    Debug.Log("Failed Raycast from " + otherObject.position + " To " + impactPoint);
+                    GameObject a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    GameObject b = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    a.transform.localScale = new Vector3(.01f, .01f, .01f);
+                    b.transform.localScale = new Vector3(.01f, .01f, .01f);
+                    a.transform.position = impactPoint;
+                    b.transform.position = otherObject.position;
+                }
+            }
+                
+            intersectingLeapBones += 1;
+        }
+    }
+    void OnCollisionExit(Collision col)
+    {
+        if (col.gameObject.layer == LayerMask.NameToLayer("LeapHands"))
+        {
+            intersectingLeapBones -= 1;
+        }
+    }
+
     private Browser browser;
 
     private CursorInput input;
@@ -15,7 +71,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
     void Awake()
     {
         // tell the browser that this object controls the UI
-        browser = transform.parent.gameObject.GetComponent<Browser>();
+        browser = GetComponent<Browser>();
         browser.UIHandler = this;
 
         inputSettings = new BrowserInputSettings(); //TODO:  set special options?
@@ -30,17 +86,36 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
     /** Called once per frame by the browser before fetching properties. */
     public void InputUpdate()
     {
-        input = ControllerInputManager.RequestInputStatus(gameObject);
+        Debug.Log("InputUpdate");
+        // create new cursorinput object:
+        input = new CursorInput();
+        input.LeftClick = click;
+        if (click)
+        {
+            input.MouseHasFocus = true;
+            input.MousePosition = clickCoord;
+        }
+        else if (justclicked)
+        {
+            input.MouseHasFocus = true;
+            input.MousePosition = clickCoord;
+        }
+        // clear any state variables:
+        if (click) justclicked = true;
+        else justclicked = false;
+        click = false;
 
-        // extra functionality that I packed in the struct, but that the browser doesn't read
-        if (input.BackPage)
-        {
-            browser.GoBack();
-        }
-        if (input.ForwardPage)
-        {
-            browser.GoForward();
-        }
+        //input = //ControllerInputManager.RequestInputStatus(gameObject);
+
+        //// extra functionality that I packed in the struct, but that the browser doesn't read
+        //if (input.BackPage)
+        //{
+        //    browser.GoBack();
+        //}
+        //if (input.ForwardPage)
+        //{
+        //    browser.GoForward();
+        //}
     }
 
     /**

@@ -38,38 +38,50 @@ public class ProceduralCurvedScreen : MonoBehaviour {
 
 	private void Generate () {
         Mesh screen = GenerateScreen();
-        GetComponent<MeshFilter>().mesh = GenerateScreen();
-
-        //create the child which will contain the backboard
-        GameObject childO = new GameObject();
+        GetComponent<MeshFilter>().mesh = screen;
         
-        childO.transform.position = transform.position;
-        childO.transform.rotation = transform.rotation;
-        childO.transform.parent = transform;
+        GetComponent<MeshCollider>().sharedMesh = screen;
 
-        childO.AddComponent<MeshFilter>();
-        childO.AddComponent<MeshRenderer>();
+        ////create the child which will contain the backboard
+        //GameObject childO = new GameObject();
+        
+        //childO.transform.position = transform.position;
+        //childO.transform.rotation = transform.rotation;
+        //childO.transform.parent = transform;
 
-        childO.AddComponent<Rigidbody>();
-        childO.GetComponent<Rigidbody>().isKinematic = true;
+        //childO.AddComponent<MeshFilter>();
+        //childO.AddComponent<MeshRenderer>();
+
+        //Rigidbody body = childO.AddComponent<Rigidbody>();
+        ////body.isKinematic = true;
+        //body.constraints = RigidbodyConstraints.FreezeAll;
 
         
 
-        Mesh Backboard = GenerateBackboard(screen);
+        //Mesh Backboard = GenerateBackboard(screen);
 
-        childO.AddComponent<MeshCollider>();
-        childO.GetComponent<MeshCollider>().sharedMesh = Backboard;
+        //childO.AddComponent<MeshCollider>();
+        //childO.GetComponent<MeshCollider>().sharedMesh = Backboard;
+        //childO.GetComponent<MeshCollider>().convex = true;
 
-        childO.GetComponent<MeshFilter>().mesh = Backboard;
-        childO.GetComponent<MeshRenderer>().material = BackboardMaterial;
+        //childO.GetComponent<MeshFilter>().mesh = Backboard;
+        //childO.GetComponent<MeshRenderer>().material = BackboardMaterial;
 
-        childO.name = "Backboard";
+        //if (DebugMesh)
+        //{
+        //    foreach (Vector3 v in childO.GetComponent<MeshCollider>().sharedMesh.vertices)
+        //    {
+        //        debugMeshPoint(v);
+        //    }
+        //}
 
-        //Debug.Log(LayerMask.NameToLayer("CursorTarget"));
-        childO.layer = LayerMask.NameToLayer("CursorTarget");
+        //childO.name = "Backboard";
 
-        BackboardObject = childO;
-        childO.transform.position = childO.transform.position + childO.transform.forward * epsilon;
+        ////Debug.Log(LayerMask.NameToLayer("CursorTarget"));
+        //childO.layer = LayerMask.NameToLayer("CursorTarget");
+
+        //BackboardObject = childO;
+        //childO.transform.position = childO.transform.position + childO.transform.forward * epsilon;
     }
 
     private void debugMeshPoint(Vector3 point)
