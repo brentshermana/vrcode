@@ -40,7 +40,7 @@ public class KeyboardInputManager : MonoBehaviour {
     {
         var old = keyboard_events;
         keyboard_events = new List<Event>();
-        Debug.Log("Sending off " + old.Count + " Events to browser ");
+        if (old.Count > 1) Debug.Log("Sending off " + old.Count + " Events to browser ");
         return old;
     }
 }

@@ -86,7 +86,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
     /** Called once per frame by the browser before fetching properties. */
     public void InputUpdate()
     {
-        Debug.Log("InputUpdate");
+        //Debug.Log("InputUpdate");
         // create new cursorinput object:
         input = new CursorInput();
         input.LeftClick = click;
