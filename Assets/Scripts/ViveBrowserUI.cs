@@ -13,56 +13,6 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
     private Vector2 clickCoord = Vector2.zero;
     public int intersectingLeapBones = 0;
     public float maxraycast;
-    void OnCollisionEnter(Collision col)
-    {
-        if (col.gameObject.layer == LayerMask.NameToLayer("LeapHands"))
-        {
-            Debug.Log("Hooray!");
-            if (intersectingLeapBones == 0)
-            {
-                RaycastHit hit = new RaycastHit();
-                int mask = 1 << gameObject.layer; // the goal is to fire a raycast at this object
-                Transform otherObject = col.gameObject.transform;
-
-                // get the point of impact by averaging all contact points
-                Vector3 impactPoint = Vector3.zero;
-                foreach (ContactPoint cpt in col.contacts)
-                {
-                    Debug.Log("Impact Point " + cpt.point);
-                    impactPoint += cpt.point;
-                }
-                impactPoint /= col.contacts.Length;
-
-                Vector3 rayDirection = impactPoint - otherObject.position;
-                Ray ray = new Ray(otherObject.position, rayDirection);
-                if (Physics.Raycast(ray, out hit, maxraycast, mask)) // && hit.collider.gameObject.Equals(gameObject))
-                {
-                    clickCoord = hit.textureCoord;
-                    Debug.Log("Texture Coord: " + hit.textureCoord);
-                    click = true;
-                }
-                else
-                {
-                    Debug.Log("Failed Raycast from " + otherObject.position + " To " + impactPoint);
-                    GameObject a = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    GameObject b = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    a.transform.localScale = new Vector3(.01f, .01f, .01f);
-                    b.transform.localScale = new Vector3(.01f, .01f, .01f);
-                    a.transform.position = impactPoint;
-                    b.transform.position = otherObject.position;
-                }
-            }
-                
-            intersectingLeapBones += 1;
-        }
-    }
-    void OnCollisionExit(Collision col)
-    {
-        if (col.gameObject.layer == LayerMask.NameToLayer("LeapHands"))
-        {
-            intersectingLeapBones -= 1;
-        }
-    }
 
     private Browser browser;
 
@@ -79,10 +29,10 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
         browserCursor = new BrowserCursor(); // do we care about anything special?
         browserCursor.SetActiveCursor(BrowserNative.CursorType.Pointer);
         //browserCursor.cursorChange += SetCursor;
-        
+
         keyEvents = new List<Event>(); // TODO: POPULATE?
     }
-    
+
     /** Called once per frame by the browser before fetching properties. */
     public void InputUpdate()
     {
@@ -123,7 +73,9 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * 
 	 * If this is false, the Mouse* properties will be ignored.
 	 */
-    public bool MouseHasFocus { get
+    public bool MouseHasFocus
+    {
+        get
         {
             return input.MouseHasFocus;
         }
@@ -135,14 +87,18 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * Returns the current position of the mouse with (0, 0) in the bottom-left corner and (1, 1) in the 
 	 * top-right corner.
 	 */
-    public Vector2 MousePosition { get
+    public Vector2 MousePosition
+    {
+        get
         {
+            Debug.Log("Mouse Position " + input.MousePosition);
             return input.MousePosition;
         }
     }
 
     /** Bitmask of currently depressed mouse buttons */
-    public MouseButton MouseButtons {
+    public MouseButton MouseButtons
+    {
         get
         {
             MouseButton buttons = 0;
@@ -150,7 +106,8 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
             {
                 buttons = buttons | MouseButton.Left;
             }
-            if (input.RightClick) {
+            if (input.RightClick)
+            {
                 buttons = buttons | MouseButton.Right;
             }
             return buttons;
@@ -164,7 +121,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * 
 	 * Return only integers.
 	 */
-     //TODO: set
+    //TODO: set
     private Vector2 mouseScroll;
     public Vector2 MouseScroll { get { return input.MouseScroll; } }
 
@@ -182,7 +139,7 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 * 
 	 * The returned list is not to be altered or retained.
 	 */
-     //TODO: set
+    //TODO: set
     private List<Event> keyEvents;
     public List<Event> KeyEvents { get { return KeyboardInputManager.FlushEvents(); } }
 
@@ -200,6 +157,6 @@ class ViveBrowserUI : MonoBehaviour, IBrowserUI
 	 */
     private BrowserInputSettings inputSettings;
     public BrowserInputSettings InputSettings { get { return inputSettings; } }
-    
+
 
 }

@@ -21,7 +21,7 @@ public class ProceduralCurvedScreen : MonoBehaviour {
     public float ScreenHeight;
     public float CurveRadius;
 
-    public float BackboardThickness;
+    public float BackboardDepth;
     public Material BackboardMaterial;
 
     public GameObject BackboardObject;
@@ -41,6 +41,8 @@ public class ProceduralCurvedScreen : MonoBehaviour {
         GetComponent<MeshFilter>().mesh = screen;
         
         GetComponent<MeshCollider>().sharedMesh = screen;
+
+        Mesh hoverField = GenerateBackboard(screen);
 
         ////create the child which will contain the backboard
         //GameObject childO = new GameObject();
@@ -109,7 +111,7 @@ public class ProceduralCurvedScreen : MonoBehaviour {
         int originalVerticesLen = vertices.Count;
         //TODO: if we want this to generalize to arc angles >= 90*,
         //  we need to do more trig calculations for 'shift'
-        Vector3 shift = new Vector3(0f,0f,BackboardThickness);
+        Vector3 shift = new Vector3(0f,0f,BackboardDepth);
         for (int i = 0; i < originalVerticesLen; i += 1)
         {
             Vector3 newVert = vertices[i] + shift;
