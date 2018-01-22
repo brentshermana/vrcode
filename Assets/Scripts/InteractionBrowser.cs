@@ -8,6 +8,182 @@ using Leap.Unity;
 
 using ZenFulcrum.EmbeddedBrowser;
 
+#region browser_states
+
+interface IBrowserControllerState
+{
+    // called once per frame after transitioning
+    void InputUpdate(InteractionBrowser ibrowser);
+    // called once per frame, returns new state for current frame
+    IBrowserControllerState Transition(InteractionBrowser ibrowser);
+}
+
+class WaitingState : IBrowserControllerState
+{
+    public IBrowserControllerState Transition(InteractionBrowser ibrowser)
+    {
+        if (ibrowser.isPrimaryHovered)
+            // presumably the browser will be primary hovered before it is touched
+            return new PrimaryHoverState();
+        return this;
+    }
+
+    public void InputUpdate(InteractionBrowser ibrowser)
+    {
+        return;
+    }
+}
+
+// wraps the repetitive maintanence of cursor values which
+// happens in many states (e.g. contact and hover)
+abstract class CursorUpdater
+{
+    protected Finger RaycastFinger;
+    protected bool PriorMousePositionSet;
+    protected Vector2 LastMousePosition;
+
+    public CursorUpdater(CursorUpdater cu)
+    {
+        RaycastFinger = cu.RaycastFinger;
+        PriorMousePositionSet = cu.PriorMousePositionSet;
+        LastMousePosition = cu.LastMousePosition;
+    }
+    public CursorUpdater(Finger finger,  Vector2 lastMousePosition)
+    {
+        PriorMousePositionSet = true;
+        LastMousePosition = lastMousePosition;
+        RaycastFinger = finger;
+    }
+    public CursorUpdater(Finger finger)
+    {
+        RaycastFinger = finger;
+    }
+    public CursorUpdater(Vector2 lastMousePosition)
+    {
+        LastMousePosition = lastMousePosition;
+    }
+    public CursorUpdater() { }
+
+    // This is what the class is all about
+    protected void UpdateCursor(InteractionBrowser browser)
+    {
+        Ray ray = browser.GetRayForFinger(GetFinger(browser));
+        RaycastHit hit;
+        if (browser.CursorRaycast(ray, out hit))
+        {
+            browser.Cursor.position = hit.point;
+            browser.NextInput.MousePosition = LastMousePosition = browser.CalculateMousePosition(hit);
+            browser.NextInput.MouseHasFocus = true;
+            PriorMousePositionSet = true;
+        }
+        else if (PriorMousePositionSet)
+        {
+            browser.NextInput.MousePosition = LastMousePosition;
+            browser.NextInput.MouseHasFocus = true;
+        }
+    }
+
+    protected Finger GetFinger(InteractionBrowser browser)
+    {
+        if (RaycastFinger != null)
+        {
+            return RaycastFinger;
+        }
+        else
+        {
+            // fall back on the primary finger
+            return browser.primaryHoveringFinger;
+        }
+    }
+}
+
+class PrimaryHoverState : CursorUpdater, IBrowserControllerState
+{
+    private Finger LastPrimaryHoveringFinger;
+
+    public IBrowserControllerState Transition(InteractionBrowser ibrowser)
+    {
+        if (ibrowser.isTouching)
+        {
+            return new ClickDownState(this);
+        }
+        else if (!ibrowser.isPrimaryHovered)
+        {
+            return new WaitingState();
+        }
+        else
+        {
+            return this;
+        }
+    }
+    public void InputUpdate(InteractionBrowser browser)
+    {
+        LastPrimaryHoveringFinger = browser.primaryHoveringFinger;
+        UpdateCursor(browser);
+    }
+}
+class ClickDownState : CursorUpdater, IBrowserControllerState
+{
+    public ClickDownState(CursorUpdater cu) : base(cu) { }
+    //public ClickDownState(Finger clickingFinger) : base(clickingFinger) { }
+    //public ClickDownState(Finger clickingFinger, Vector2 lastMousePosition) : base(clickingFinger, lastMousePosition) { }
+
+    public IBrowserControllerState Transition (InteractionBrowser browser)
+    {
+        return new ClickUpState(this);
+    }
+    public void InputUpdate(InteractionBrowser browser)
+    {
+        UpdateCursor(browser);
+        browser.NextInput.LeftClick = true;
+    }
+}
+// no clicking occurs in this state
+class ClickUpState : CursorUpdater, IBrowserControllerState
+{
+    public ClickUpState(CursorUpdater cu) : base(cu) { }
+
+    public IBrowserControllerState Transition(InteractionBrowser browser)
+    {
+        return new InactiveTouchingState(this);
+    }
+
+    public void InputUpdate(InteractionBrowser browser)
+    {
+        browser.NextInput.MouseHasFocus = true;
+        browser.NextInput.MousePosition = LastMousePosition;
+    }
+}
+// no clicking occurs in this state
+class InactiveTouchingState : CursorUpdater, IBrowserControllerState
+{
+    public InactiveTouchingState(CursorUpdater cu) : base(cu) { }
+
+    public void InputUpdate(InteractionBrowser browser)
+    {
+        UpdateCursor(browser);
+    }
+
+    public IBrowserControllerState Transition(InteractionBrowser browser)
+    {
+        if (browser.isTouching)
+        {
+            return this;
+        }
+        else if (browser.isPrimaryHovered)
+        {
+            // deliberately not passing along this finger because it may not be primary anymore
+            return new PrimaryHoverState();
+        }
+        else
+        {
+            return new WaitingState();
+        }
+    }
+}
+
+#endregion
+
 public class InteractionBrowser : InteractionBehaviour, IBrowserUI
 {
 #region Monobehaviour
@@ -16,12 +192,10 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
     void Start()
     {
         // Set InteractionBehaviour Events
-        OnPrimaryHoverBegin = onHoverBegin;
-        OnPrimaryHoverEnd = onHoverEnd;
-        OnPrimaryHoverStay = onHoverStay;
+
+        state = new WaitingState();
 
         OnContactBegin = onContactBegin;
-        OnContactStay = onContactStay;
         OnContactEnd = onContactEnd;
 
         // tell the browser that this object controls the UI
@@ -31,123 +205,88 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
             browser = GetComponentInChildren<Browser>();
         }
         browser.UIHandler = this;
+        
         inputSettings = new BrowserInputSettings(); //TODO:  set special options?
+        inputSettings.scrollSpeed = 1;
         browserCursor = new BrowserCursor(); // do we care about anything special?
         browserCursor.SetActiveCursor(BrowserNative.CursorType.Pointer);
         keyEvents = new List<Event>(); // TODO: POPULATE?
-        //magnifyingGlass.SetEnabled(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        NextInput.MouseHasFocus = hovering || touching;
-        if (NextInput.MouseHasFocus)
-        {
-            // Get Mouse Position
-            RaycastHit hit;
-            if (CursorRaycast(out hit))
-            {
-                // NextInput.MousePosition = hit.textureCoord; // TextureCoord doesn't work on non-mesh colliders
-
-                //Manually calculate the UV Coordinates:
-                Vector3 screenScale = screen.transform.lossyScale;
-                Vector3 localHitPoint = screen.transform.InverseTransformPoint(hit.point);
-                // The next line assumes that the collider is a cube or quad, and that
-                //  The front (or rear) face is the one being hit
-                // Local Coordinates will range from -.5 to .5, but we need 0 to 1
-                // Additionally, the x axis must be reversed because Unity's positive x is left
-                NextInput.MousePosition = new Vector2(-1f*localHitPoint.x + .5f, localHitPoint.y + .5f);
-                
-                LastMousePosition = NextInput.MousePosition;
-                // While we're here, set the cursor's position
-                Cursor.position = hit.point;
-            }
-            else
-            {
-                NextInput.MousePosition = LastMousePosition;
-            }
-            
-            // Set Click Status
-            NextInput.LeftClick = touching;
-            touching = false; //TODO: REMOVE IF YOU DON'T WANT INSTANTANEOUS CLICKS
-        }
     }
 #endregion
 
 #region InteractionBehaviour
-
-    private bool hovering;
-    private bool touching;
+    public bool isTouching;
     public float maxraycast = 1f;
     //public MagnifyingGlass magnifyingGlass;
     public GameObject screen;
-
-    void onHoverBegin()
-    {
-        hovering = true;
-    }
-    void onHoverStay()
-    {
-        hovering = true;
-    }
-    void onHoverEnd()
-    {
-        hovering = false;
-    }
+    
 
     void onContactBegin()
     {
-        touching = true;
-    }
-    void onContactStay()
-    {
-        // touching = true;
+        isTouching = true;
     }
     void onContactEnd()
     {
-        touching = false;
+        isTouching = false;
     }
 
-    private bool CursorRaycast(out RaycastHit hit)
+    public Ray GetRayForFinger(Finger finger)
     {
-        Vector3 rayDirection = UnityVectorExtension.ToVector3(primaryHoveringFinger.Direction);
-        Ray ray = new Ray(UnityVectorExtension.ToVector3(primaryHoveringFinger.StabilizedTipPosition), rayDirection);
+        Vector3 FingerDirection = UnityVectorExtension.ToVector3(primaryHoveringFinger.Direction);
+        // we subtract the finger direction because we want the raycast to hit the screen even 
+        //  if the finger is slightly penetrating the screen
+        Vector3 FingerSource = UnityVectorExtension.ToVector3(finger.StabilizedTipPosition) - (FingerDirection * 0.05f);
+        Ray ray = new Ray(FingerSource, FingerDirection);
+        return ray;
+    }
+    public bool CursorRaycast(Ray ray, out RaycastHit hit)
+    {
         // Not a good idea to use a mask because leap plays around with layers at runtime
-        //int mask = 1 << screen.layer; // the goal is to fire a raycast at the screen
         RaycastHit[] hits = Physics.RaycastAll(ray, maxraycast);
         foreach (RaycastHit h in hits)
         {
             if (h.collider.gameObject.Equals(screen))
             {
-                //Quaternion rotation = Quaternion.LookRotation(transform.forward, transform.up);
-                //magnifyingGlass.SetEnabled(true);
-                //magnifyingGlass.Reposition(hit.point, rotation);
-
                 hit = h;
                 return true;
             }
         }
-        hit = new RaycastHit(); // dummy value
+        hit = new RaycastHit(); // dummy value for failure to hit
         return false;
+    }
+    public Vector2 CalculateMousePosition(RaycastHit hit)
+    {
+        //Manually calculate the UV Coordinates:
+        Vector3 localHitPoint = screen.transform.InverseTransformPoint(hit.point);
+        // The next line assumes that the collider is a cube or quad, and that
+        //  The front (or rear) face is the one being hit
+        // Local Coordinates will range from -.5 to .5, but we need 0 to 1
+        // Additionally, the x axis must be reversed because Unity's positive x is left
+        return new Vector2(-1f * localHitPoint.x + .5f, localHitPoint.y + .5f);
     }
 
     #endregion
 
     #region IBrowserUI
 
+    private IBrowserControllerState state;
+
     public Transform Cursor;
-    
-    private Vector2 LastMousePosition;
 
     private Browser browser;
 
     private CursorInput CurrentInput;
-    private CursorInput NextInput = new CursorInput();
+    public CursorInput NextInput = new CursorInput();
 
     /** Called once per frame by the browser before fetching properties. */
     public void InputUpdate()
     {
+        // transition to the appropriate current state
+        state = state.Transition(this);
+        // the next input values are altered according to the state
+        state.InputUpdate(this);
+
+        // make the next input available for reading
         CurrentInput = NextInput;
         NextInput = new CursorInput();
     }
