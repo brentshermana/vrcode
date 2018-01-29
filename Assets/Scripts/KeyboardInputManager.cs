@@ -4,9 +4,21 @@ using UnityEngine;
 
 public class KeyboardInputManager : MonoBehaviour {
 
+    private static KeyboardInputManager singleton;
+
+    public void Start()
+    {
+        if (singleton != null)
+        {
+            Debug.LogError("More than one KeyboardInputManager in scene!");
+        }
+        singleton = this;
+    }
+
     static List<Event> keyboard_events = new List<Event>();
 
     // events are raised here
+    // This passes along 'actual' keyboard events
     public void OnGUI()
     {
         var ev = Event.current;
@@ -34,8 +46,12 @@ public class KeyboardInputManager : MonoBehaviour {
     {
         keyboard_events.Add(e);
     }
-    
 
+    public static void AddCharPress(char c)
+    {
+        keyboard_events.AddRange(KeyCharMapping.KeyEvents(c));
+    }
+    
     public static List<Event> FlushEvents()
     {
         var old = keyboard_events;
