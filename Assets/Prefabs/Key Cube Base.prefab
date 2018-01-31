@@ -38,6 +38,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4755511087988878}
   - component: {fileID: 114034667952093822}
+  - component: {fileID: 114575074081402654}
   m_Layer: 0
   m_Name: Key Cube Base
   m_TagString: Untagged
@@ -366,6 +367,20 @@ MonoBehaviour:
   hoverColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   primaryHoverColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   pressedColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &114575074081402654
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1569588960987884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1b7fbc5889b3b47ae7daf8598b0b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MeshBase: {fileID: 1983699207929800}
+  ButtonFace: {fileID: 1160770114962864}
+  button: {fileID: 114590295804615034}
 --- !u!114 &114590295804615034
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -400,7 +415,7 @@ MonoBehaviour:
   startingPositionMode: 0
   minMaxHeight: {x: 0, y: 0.03}
   restingHeight: 0.5
-  _springForce: 0.1
+  _springForce: 1
   _OnPress:
     m_PersistentCalls:
       m_Calls:
@@ -411,6 +426,17 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 8300000, guid: 1b735f22c197f9446bc8b541eef1eaa8,
             type: 3}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 114575074081402654}
+        m_MethodName: PressKey
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

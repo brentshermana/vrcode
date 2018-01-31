@@ -37,8 +37,8 @@ public class ProceduralKeyboard : MonoBehaviour {
             {
                 GameObject newKey = Instantiate(KeyPrefab);
 
-                newKey.GetComponent<ButtonUtils>().SetSize(KeyDim); // size
-                newKey.GetComponent<ButtonUtils>().SetTravel(Travel);
+                newKey.GetComponent<KeyUtils>().SetSize(KeyDim); // size
+                newKey.GetComponent<KeyUtils>().SetTravel(Travel);
 
                 Quaternion originalGlobalRotation = newKey.transform.rotation;
 
@@ -46,12 +46,7 @@ public class ProceduralKeyboard : MonoBehaviour {
                 newKey.transform.localPosition = Vector3.right*x + z*Vector3.forward + Vector3.up*y; // position
                 newKey.transform.localRotation = originalGlobalRotation; // rotation
 
-                Texture letterTex = LetterResourceLoader.LoadLetter(
-                        "Textures\\Letters\\",
-                        Characters[row][col]
-                    ) as Texture;
-                newKey.GetComponent<ButtonUtils>().SetTexture(letterTex);
-                
+                newKey.GetComponent<KeyUtils>().KeyChar = Characters[row][col]; // sets the value and the texture
             }
         }
 	}
