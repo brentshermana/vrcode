@@ -20,17 +20,23 @@ interface IBrowserControllerState
 
 class WaitingState : IBrowserControllerState
 {
+    public WaitingState() { }
+    public WaitingState(InertialScroller inertialScroller) { this.iScroller = inertialScroller; }
+
+    public InertialScroller iScroller;
+
     public IBrowserControllerState Transition(InteractionBrowser ibrowser)
     {
         if (ibrowser.isPrimaryHovered)
             // presumably the browser will be primary hovered before it is touched
-            return new PrimaryHoverState();
+            return new PrimaryHoverState(iScroller);
         return this;
     }
 
     public void InputUpdate(InteractionBrowser ibrowser)
     {
-        return;
+        if (iScroller != null)
+            iScroller.InertialScroll(ibrowser);
     }
 }
 
@@ -65,8 +71,12 @@ abstract class CursorUpdater
     public CursorUpdater() { }
 
     // This is what the class is all about
-    protected void UpdateCursor(InteractionBrowser browser)
+    protected void UpdateCursor(InteractionBrowser browser, bool updateRaycastFinger)
     {
+        if (updateRaycastFinger && browser.primaryHoveringFinger != null)
+        {
+            RaycastFinger = browser.primaryHoveringFinger;
+        }
         Ray ray = browser.GetRayForFinger(GetFinger(browser));
         RaycastHit hit;
         if (browser.CursorRaycast(ray, out hit))
@@ -96,20 +106,49 @@ abstract class CursorUpdater
         }
     }
 }
+// for any class (hover, waiting) which does not interfere with inertial scrolling
+class InertialScroller
+{
+    public InertialScroller(Vector2 scrollV)
+    {
+        this.ScrollV = scrollV;
+    }
+
+    //private Vector2 carryOver;
+    private Vector2 ScrollV;
+
+    public void InertialScroll(InteractionBrowser browser)
+    {
+        browser.NextInput.MouseHasFocus = true; // otherwise scrolling won't be read
+        Vector2 ScrollThisFrame = ScrollV * Time.deltaTime;
+        browser.NextInput.MouseScroll = ScrollThisFrame; // scale by time
+        // 
+        Debug.Log("Inertia " + browser.NextInput.MouseScroll);
+        ScrollV = Vector2.MoveTowards(ScrollV, Vector2.zero, browser.InertialScrollingDeceleration * Time.deltaTime);
+    }
+}
 
 class PrimaryHoverState : CursorUpdater, IBrowserControllerState
 {
+    public PrimaryHoverState() : base() { }
+    public PrimaryHoverState(InertialScroller inertialScroller)
+    {
+        iScroller = inertialScroller;
+    }
+
     private Finger LastPrimaryHoveringFinger;
+    private Hand LastPrimaryHoveringHand;
+    private InertialScroller iScroller;
 
     public IBrowserControllerState Transition(InteractionBrowser ibrowser)
     {
         if (ibrowser.isTouching)
         {
-            return new ClickDownState(this);
+            return new ClickDownState(this, LastPrimaryHoveringHand);
         }
         else if (!ibrowser.isPrimaryHovered)
         {
-            return new WaitingState();
+            return new WaitingState(iScroller);
         }
         else
         {
@@ -118,27 +157,108 @@ class PrimaryHoverState : CursorUpdater, IBrowserControllerState
     }
     public void InputUpdate(InteractionBrowser browser)
     {
+        if (iScroller != null)
+            iScroller.InertialScroll(browser);
         LastPrimaryHoveringFinger = browser.primaryHoveringFinger;
-        UpdateCursor(browser);
+        if (browser.primaryHoveringHand != null)
+            LastPrimaryHoveringHand = browser.primaryHoveringHand;
+        UpdateCursor(browser, true);
     }
 }
+/*
+ * branches based on whether the click is done with the index finger
+ * or not
+ */
 class ClickDownState : CursorUpdater, IBrowserControllerState
 {
-    public ClickDownState(CursorUpdater cu) : base(cu) { }
+    protected bool DidClick;
+    protected Hand TouchingHand;
+
+    public ClickDownState(CursorUpdater cu, Hand touchingHand) : base(cu) {
+        TouchingHand = touchingHand;
+    }
     //public ClickDownState(Finger clickingFinger) : base(clickingFinger) { }
     //public ClickDownState(Finger clickingFinger, Vector2 lastMousePosition) : base(clickingFinger, lastMousePosition) { }
 
     public IBrowserControllerState Transition (InteractionBrowser browser)
     {
-        return new ClickUpState(this);
+        if (DidClick)
+            return new ClickUpState(this);
+        else if (!browser.isTouching)
+        {
+            if (browser.isPrimaryHovered)
+            {
+                return new PrimaryHoverState();
+            }
+            else
+            {
+                return new WaitingState();
+            }
+        }
+        else
+            return new ScrollState(this);
+
     }
     public void InputUpdate(InteractionBrowser browser)
     {
-        UpdateCursor(browser);
-        browser.NextInput.LeftClick = true;
+        UpdateCursor(browser, true);
+        List<Finger> smallFingers = TouchingHand.Fingers;
+        Vector3 pointerFingerDirection = TouchingHand.GetIndex().Direction.ToVector3();
+        foreach (Finger f in smallFingers)
+        {
+            if (f == null || f.Type == Finger.FingerType.TYPE_THUMB || f.Type == RaycastFinger.Type)
+                continue;
+            float angle = Vector3.Angle(pointerFingerDirection, f.Direction.ToVector3());
+            Debug.Log(angle);
+            if (angle > 30f)
+            {
+                // click
+                browser.NextInput.LeftClick = true;
+                DidClick = true;
+                return;
+            }
+        }
+        // all fingers are pointing in similar directions, so hover
     }
 }
-// no clicking occurs in this state
+class ScrollState : CursorUpdater, IBrowserControllerState
+{
+    private Vector2 carryover; // sub-integer scroll distance rounded off from prev frame
+    private Vector2 currentSpeed; // used for inertialScrolling
+
+    public ScrollState(CursorUpdater cu) : base(cu) { currentSpeed = Vector2.zero; }
+
+    public void InputUpdate(InteractionBrowser browser)
+    {
+        Vector2 prev_touch = base.LastMousePosition;
+        base.UpdateCursor(browser, false);
+        Vector2 screenDelta = prev_touch - base.LastMousePosition; // in percent of screen width and height
+        screenDelta.Scale(browser.GetComponent<Browser>().Size); // scale to the number of pixels
+        screenDelta += carryover;
+        Vector2 roundedScreenDelta = new Vector2(Mathf.Round(screenDelta.x), Mathf.Round(screenDelta.y));
+        carryover = screenDelta - roundedScreenDelta;
+        currentSpeed = (screenDelta/Time.deltaTime + currentSpeed) / 2f; //TODO: some better form of smoothing?
+        browser.NextInput.MouseScroll = roundedScreenDelta;
+
+        //Debug.Log("scrolling! " + screenDelta);
+    }
+    public IBrowserControllerState Transition(InteractionBrowser browser)
+    {
+        if (browser.isTouching)
+        {
+            return this;
+        }
+        else if (browser.isPrimaryHovered)
+        {
+            return new PrimaryHoverState(new InertialScroller(currentSpeed));
+        }
+        else
+        {
+            return new WaitingState(new InertialScroller(currentSpeed));
+        }
+    }
+}
+// no clicking occurs in this state. necessary to provide mouse up event
 class ClickUpState : CursorUpdater, IBrowserControllerState
 {
     public ClickUpState(CursorUpdater cu) : base(cu) { }
@@ -161,7 +281,7 @@ class InactiveTouchingState : CursorUpdater, IBrowserControllerState
 
     public void InputUpdate(InteractionBrowser browser)
     {
-        UpdateCursor(browser);
+        UpdateCursor(browser, true);
     }
 
     public IBrowserControllerState Transition(InteractionBrowser browser)
@@ -172,7 +292,6 @@ class InactiveTouchingState : CursorUpdater, IBrowserControllerState
         }
         else if (browser.isPrimaryHovered)
         {
-            // deliberately not passing along this finger because it may not be primary anymore
             return new PrimaryHoverState();
         }
         else
@@ -212,9 +331,10 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
         browserCursor.SetActiveCursor(BrowserNative.CursorType.Pointer);
         keyEvents = new List<Event>(); // TODO: POPULATE?
     }
-#endregion
+    #endregion
 
-#region InteractionBehaviour
+    #region InteractionBehaviour
+    //public HandPool handPool;
     public bool isTouching;
     public float maxraycast = 1f;
     //public MagnifyingGlass magnifyingGlass;
@@ -235,7 +355,7 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
         Vector3 FingerDirection = UnityVectorExtension.ToVector3(primaryHoveringFinger.Direction);
         // we subtract the finger direction because we want the raycast to hit the screen even 
         //  if the finger is slightly penetrating the screen
-        Vector3 FingerSource = UnityVectorExtension.ToVector3(finger.StabilizedTipPosition) - (FingerDirection * 0.05f);
+        Vector3 FingerSource = UnityVectorExtension.ToVector3(finger.StabilizedTipPosition) - (FingerDirection * 0.2f);
         Ray ray = new Ray(FingerSource, FingerDirection);
         return ray;
     }
@@ -270,6 +390,10 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
     #region IBrowserUI
 
     private IBrowserControllerState state;
+    
+    
+
+    public float InertialScrollingDeceleration; // deceration of inertial speed in pixels/s/s
 
     public Transform Cursor;
 

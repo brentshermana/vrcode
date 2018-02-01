@@ -787,9 +787,6 @@ For ""New Browser"" to work, you need to assign NewWindowHandler to a handler of
 		else BrowserNative.zfb_changeLoading(browserId, BrowserNative.LoadChange.LC_RELOAD);
 	}
 
-
-
-
 	/**
 	 * Show the development tools for the current page.
 	 *
