@@ -99,11 +99,11 @@ class KeyCharMapping
         { '#', KeyCode.Hash},
         { '$', KeyCode.Dollar},
         { '%', KeyCode.Alpha5}, //requires shift
-        { '^', KeyCode.Backspace},
-        { '&', KeyCode.Backspace},
-        { '*', KeyCode.Backspace},
-        { '(', KeyCode.Backspace},
-        { ')', KeyCode.Backspace},
+        { '^', KeyCode.Caret},
+        { '&', KeyCode.Ampersand},
+        { '*', KeyCode.Asterisk},
+        { '(', KeyCode.LeftParen},
+        { ')', KeyCode.RightParen},
         { '`', KeyCode.BackQuote},
         { '~', KeyCode.BackQuote}, // requires shift
         { ';', KeyCode.Semicolon},

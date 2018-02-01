@@ -24,6 +24,10 @@ public class ButtonUtils : MonoBehaviour {
     {
         MeshBase.transform.localScale = Vector3.one * dim;
     }
+    public void SetSize(float width, float depth, float length)
+    {
+        MeshBase.transform.localScale = new Vector3(width, depth, length);
+    }
 
     public void SetTravel(float travel)
     {

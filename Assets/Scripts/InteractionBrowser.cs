@@ -300,7 +300,7 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
     {
         get
         {
-            if (CurrentInput.MouseHasFocus) Debug.Log("Mouse Has Focus!");
+            //if (CurrentInput.MouseHasFocus) Debug.Log("Mouse Has Focus!");
             return CurrentInput.MouseHasFocus;
         }
     }
@@ -315,7 +315,7 @@ public class InteractionBrowser : InteractionBehaviour, IBrowserUI
     {
         get
         {
-            Debug.Log(CurrentInput.MousePosition);
+            //Debug.Log(CurrentInput.MousePosition);
             return CurrentInput.MousePosition;
         }
     }
