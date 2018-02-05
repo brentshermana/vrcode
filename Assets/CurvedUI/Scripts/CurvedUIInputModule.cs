@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using CurvedUI;
 
+using Leap;
+using Leap.Unity;
+
 #if CURVEDUI_VIVE
 using Valve.VR;
 #endif 
@@ -38,7 +41,7 @@ public class CurvedUIInputModule : StandaloneInputModule {
     [SerializeField]
     float gazeClickTimerDelay = 1.0f;
     [SerializeField]
-    Image gazeTimedClickProgressImage;
+    UnityEngine.UI.Image gazeTimedClickProgressImage;
 
     //World Space Mouse
     [SerializeField]
@@ -55,7 +58,10 @@ public class CurvedUIInputModule : StandaloneInputModule {
     //---------------------------------------------------------//
 
 
-
+    [SerializeField]
+    LeapProvider leapProvider;
+    [SerializeField]
+    float fingerRayPullback;
 
 
     //COMMON VARIABLES-----------------------------------------//
@@ -265,8 +271,7 @@ public class CurvedUIInputModule : StandaloneInputModule {
 
         var mouseData = GetMousePointerEventData(0);
         PointerEventData eventData = mouseData.GetButtonState(PointerEventData.InputButton.Left).eventData.buttonData;
-
-
+        
         // send update events if there is a selected object - this is important for InputField to receive keyboard events
         SendUpdateEventToSelectedObject();
 
@@ -486,7 +491,6 @@ public class CurvedUIInputModule : StandaloneInputModule {
     /// </summary>
     private CurvedUIPointerEventData GetControllerPointerData(CurvedUIViveController controller, ref CurvedUIPointerEventData ControllerData)
     {
-
         if (ControllerData == null)
             ControllerData = new CurvedUIPointerEventData(eventSystem);
 
@@ -873,7 +877,7 @@ public class CurvedUIInputModule : StandaloneInputModule {
     /// Gaze Control Method. This Images's fill will be animated 0-1 when OnClick events are about
     /// to be executed on buttons under the gaze.
     /// </summary>
-    public Image GazeTimedClickProgressImage {
+    public UnityEngine.UI.Image GazeTimedClickProgressImage {
         get { return gazeTimedClickProgressImage; }
         set { gazeTimedClickProgressImage = value; }
     }
