@@ -1,105 +1,50 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-/*
- * Generates a curved screen with arbitrary parameters,
- * as well as a child object (the backboard)
- */
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class ProceduralCurvedScreen : MonoBehaviour {
+public class VRUI_PanelGenerator
+{
 
-    public bool DebugMesh;
+	private static float DefaultSquaresPerUnit = 30f;
+	private static float DefaultScreenDepth = 0.02f;
+	
+    
+    private float ScreenWidth;
+    private float ScreenHeight;
+    private float CurveRadius;
+	
+	private float SquaresPerUnit;
+	private float ScreenDepth;
 
-    // we want this number to be high, because one unit is a meter in VR
-    public float SquaresPerUnit;
+	private int rows;
+	private int cols;
 
-    public float epsilon; // forward shift of screen to prevent render fighting
-
-    public float ScreenWidth;
-    public float ScreenHeight;
-    public float CurveRadius;
-
-    public float BackboardDepth;
-    public Material BackboardMaterial;
-
-    public GameObject BackboardObject;
-
-	private Mesh mesh;
-	private Vector3[] vertices;
-
-    private int rows;
-    private int cols;
-
-	private void Awake () {
-		Generate();
+	public VRUI_PanelGenerator(float w, float h, float r)
+	{
+		ScreenWidth = w;
+		ScreenHeight = h;
+		CurveRadius = r;
+		
+		// default values
+		SquaresPerUnit = DefaultSquaresPerUnit;
+		ScreenDepth = DefaultScreenDepth;
+		
+		// we're going to want to ensure that the back and front screen have the same
+		// number of rows and columns
+		rows = Mathf.CeilToInt(ScreenWidth * SquaresPerUnit);
+		cols = Mathf.CeilToInt(ScreenHeight * SquaresPerUnit);
 	}
 
-	private void Generate () {
-        Mesh screen = GenerateScreen();
-        GetComponent<MeshFilter>().mesh = screen;
-        
-        GetComponent<MeshCollider>().sharedMesh = screen;
+	public Mesh GeneratePanel()
+	{
+		Mesh screen = GenerateScreen();
+		Mesh backboard = GenerateBackboard(screen);
+		return backboard;
+	}
 
-        Mesh hoverField = GenerateBackboard(screen);
-
-        //create the child which will contain the backboard
-        GameObject childO = new GameObject();
-
-        childO.transform.position = transform.position;
-        childO.transform.rotation = transform.rotation;
-        childO.transform.parent = transform;
-
-        childO.AddComponent<MeshFilter>();
-        childO.AddComponent<MeshRenderer>();
-
-        Rigidbody body = childO.AddComponent<Rigidbody>();
-        //body.isKinematic = true;
-        body.constraints = RigidbodyConstraints.FreezeAll;
-
-
-
-        Mesh Backboard = GenerateBackboard(screen);
-
-        childO.AddComponent<MeshCollider>();
-        childO.GetComponent<MeshCollider>().sharedMesh = Backboard;
-        childO.GetComponent<MeshCollider>().convex = true;
-
-        childO.GetComponent<MeshFilter>().mesh = Backboard;
-        childO.GetComponent<MeshRenderer>().material = BackboardMaterial;
-
-        if (DebugMesh)
-        {
-            foreach (Vector3 v in childO.GetComponent<MeshCollider>().sharedMesh.vertices)
-            {
-                debugMeshPoint(v);
-            }
-        }
-
-        childO.name = "Backboard";
-
-        //Debug.Log(LayerMask.NameToLayer("CursorTarget"));
-        childO.layer = LayerMask.NameToLayer("CursorTarget");
-
-        BackboardObject = childO;
-        childO.transform.position = childO.transform.position + childO.transform.forward * epsilon;
-    }
-
-    private void debugMeshPoint(Vector3 point)
-    {
-        if (DebugMesh) {
-            float scalef = .01f;
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-            go.transform.parent = transform;
-            go.transform.localPosition = point;
-            go.transform.localRotation = Quaternion.identity;
-            go.transform.localScale = new Vector3(scalef, scalef, scalef);
-        }
-    }
-
-    private Mesh GenerateBackboard(Mesh screen)
+	private Mesh GenerateBackboard(Mesh screen)
     {
         Mesh backboard = new Mesh();
 
@@ -111,12 +56,11 @@ public class ProceduralCurvedScreen : MonoBehaviour {
         int originalVerticesLen = vertices.Count;
         //TODO: if we want this to generalize to arc angles >= 90*,
         //  we need to do more trig calculations for 'shift'
-        Vector3 shift = new Vector3(0f,0f,BackboardDepth);
+        Vector3 shift = new Vector3(0f,0f,ScreenDepth);
         for (int i = 0; i < originalVerticesLen; i += 1)
         {
             Vector3 newVert = vertices[i] + shift;
             vertices.Add(newVert);
-            debugMeshPoint(newVert);
         }
         backboard.vertices = vertices.ToArray();
 
@@ -209,7 +153,7 @@ public class ProceduralCurvedScreen : MonoBehaviour {
         rows = (int)(ScreenHeight * SquaresPerUnit);
        
 
-        vertices = new Vector3[(cols + 1) * (rows + 1)];
+        Vector3[] vertices = new Vector3[(cols + 1) * (rows + 1)];
         Vector2[] uv = new Vector2[vertices.Length];
         float theta_range_rad = ScreenWidth / (2f * Mathf.PI * CurveRadius);
         float theta_offset_rad = (Mathf.PI / 2) + (ScreenWidth/CurveRadius / 2);
@@ -223,8 +167,6 @@ public class ProceduralCurvedScreen : MonoBehaviour {
                 float y_point = ((row / ((float)rows)) * ScreenHeight) - (.5f * ScreenHeight);
                 Vector3 position = new Vector3(x_point, y_point, z_point);
                 vertices[i] = position;
-
-                debugMeshPoint(position);
 
                 Vector2 uvvec = new Vector2((float)col / (cols), (float)row / (rows));
 
