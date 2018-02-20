@@ -41,7 +41,7 @@ public class VRUI_PanelGenerator
 	{
 		Mesh screen = GenerateScreen();
 		Mesh backboard = GenerateBackboard(screen);
-		return screen;
+		return backboard;
 	}
 
 	private Mesh GenerateBackboard(Mesh screen)
@@ -155,8 +155,8 @@ public class VRUI_PanelGenerator
 
         Vector3[] vertices = new Vector3[(cols + 1) * (rows + 1)];
         Vector2[] uv = new Vector2[vertices.Length];
-        float theta_range_rad = ScreenWidth / (2f * Mathf.PI * CurveRadius);
-	    
+        //float theta_range_rad = ScreenWidth / (2f * Mathf.PI * CurveRadius);
+	    float theta_range_rad = Mathf.Abs(ScreenWidth / CurveRadius);
         for (int i = 0, row = 0; row < rows + 1; row++)
         {
 	        float axisPosition = ((row / ((float) rows)) * ScreenHeight) - (.5f * ScreenHeight);
@@ -167,7 +167,6 @@ public class VRUI_PanelGenerator
             {
 	            arcIterator.MoveNext();
                 Vector3 position = arcIterator.Current;
-	            
 	            
                 vertices[i] = position;
 

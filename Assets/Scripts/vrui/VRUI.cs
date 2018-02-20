@@ -4,19 +4,52 @@ using Leap.Unity;
 using UnityEngine;
 
 // UI system based on physical movements and interaction
+[ExecuteInEditMode]
 public class VRUI : MonoBehaviour {
 
     [SerializeField]
     private Vector3 centerAxis = Vector3.up;
 
+	
+	#region IN_EDITOR
+	private void OnGUI()
+	{
+		if (Application.isEditor)
+		{
+			EditorUpdate();
+		}
+	}
+	void OnRenderObject()
+	{
+		if (Application.isEditor)
+		{
+			EditorUpdate();
+		}
+	}
+	void EditorUpdate()
+	{
+		if (transform.childCount < 1)
+		{
+			AddPanel(transform.position + Vector3.forward, 2f, 1f);
+		}
+	}
+	#endregion
+
 	// Use this for initialization
 	void Start () {
-		AddPanel(transform.position + Vector3.forward, 2f, 1f);
+		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (Application.isEditor)
+		{
+			EditorUpdate();
+		}
+		else
+		{
+			
+		}
 	}
 
     void AddPanel(Vector3 position, float width, float height)
@@ -43,4 +76,6 @@ public class VRUI : MonoBehaviour {
 	    
 	    
     }
+
+	
 }
