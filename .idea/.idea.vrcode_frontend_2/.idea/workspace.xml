@@ -48,27 +48,43 @@
           <file leaf-file-name="VRUI_PanelGenerator.cs" pinned="true" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/Assets/Scripts/VRUI_PanelGenerator.cs">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="536">
-                  <caret line="160" column="9" lean-forward="true" selection-start-line="160" selection-start-column="9" selection-end-line="160" selection-end-column="9" />
+                <state relative-caret-position="674">
+                  <caret line="169" column="16" lean-forward="true" selection-start-line="169" selection-start-column="16" selection-end-line="169" selection-end-column="16" />
                   <folding>
-                    <marker date="1518990601680" expanded="false" signature="6:92" ph="..." />
-                    <marker date="1518990601680" expanded="true" signature="127:7366" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="488:881" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="656:765" ph="/* we're going to want to ensure that the back and front screen have the same ... */" />
-                    <marker date="1518990601680" expanded="true" signature="911:1017" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="1063:5053" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="1422:1542" ph="/* TODO: if we want this to generalize to arc angles &gt;= 90*, ... */" />
-                    <marker date="1518990601680" expanded="true" signature="1655:1761" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="1973:2332" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="1996:2129" ph="/* because the back of the backboard is facing the opposite direction, ... */" />
-                    <marker date="1518990601680" expanded="true" signature="2428:3442" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="3529:4533" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="4815:4862" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="5088:7364" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="5612:6309" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="5680:6299" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="6461:7184" ph="{...}" />
-                    <marker date="1518990601680" expanded="true" signature="6523:7174" ph="{...}" />
+                    <marker date="1518996468314" expanded="false" signature="6:92" ph="..." />
+                    <marker date="1518996468314" expanded="true" signature="127:7262" ph="{...}" />
+                    <marker date="1518996468314" expanded="false" signature="488:881" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="656:765" ph="/* we're going to want to ensure that the back and front screen have the same ... */" />
+                    <marker date="1518996468314" expanded="true" signature="911:1014" ph="{...}" />
+                    <marker date="1518996468314" expanded="false" signature="1060:5050" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="1419:1539" ph="/* TODO: if we want this to generalize to arc angles &gt;= 90*, ... */" />
+                    <marker date="1518996468314" expanded="true" signature="1652:1758" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="1970:2329" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="1993:2126" ph="/* because the back of the backboard is facing the opposite direction, ... */" />
+                    <marker date="1518996468314" expanded="true" signature="2425:3439" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="3526:4530" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="4812:4859" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="5085:7260" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="5534:6205" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="5886:6195" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="6357:7080" ph="{...}" />
+                    <marker date="1518996468314" expanded="true" signature="6419:7070" ph="{...}" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Test.cs" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Assets/Scripts/Test.cs">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="105">
+                  <caret line="14" column="55" lean-forward="false" selection-start-line="14" selection-start-column="55" selection-end-line="14" selection-end-column="55" />
+                  <folding>
+                    <marker date="1518995735731" expanded="false" signature="6:158" ph="..." />
+                    <marker date="1518995735731" expanded="true" signature="194:715" ph="{...}" />
+                    <marker date="1518995735731" expanded="true" signature="249:650" ph="{...}" />
+                    <marker date="1518995735731" expanded="true" signature="407:638" ph="{...}" />
+                    <marker date="1518995735731" expanded="true" signature="705:712" ph="{...}" />
                   </folding>
                 </state>
               </provider>
@@ -77,14 +93,14 @@
           <file leaf-file-name="ArcIterator.cs" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Assets/Scripts/ArcIterator.cs">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="135">
-                  <caret line="9" column="21" lean-forward="false" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+                <state relative-caret-position="555">
+                  <caret line="37" column="39" lean-forward="false" selection-start-line="37" selection-start-column="39" selection-end-line="37" selection-end-column="39" />
                   <folding>
-                    <marker date="1518993167843" expanded="true" signature="6:66" ph="..." />
-                    <marker date="1518993167843" expanded="true" signature="140:1308" ph="{...}" />
-                    <marker date="1518993167843" expanded="true" signature="297:401" ph="{...}" />
-                    <marker date="1518993167843" expanded="true" signature="515:1306" ph="{...}" />
-                    <marker date="1518993167843" expanded="true" signature="718:1300" ph="{...}" />
+                    <marker date="1518993493330" expanded="true" signature="6:66" ph="..." />
+                    <marker date="1518993493330" expanded="true" signature="140:1222" ph="{...}" />
+                    <marker date="1518993493330" expanded="true" signature="297:401" ph="{...}" />
+                    <marker date="1518993493330" expanded="true" signature="483:1220" ph="{...}" />
+                    <marker date="1518993493330" expanded="true" signature="653:1214" ph="{...}" />
                   </folding>
                 </state>
               </provider>
@@ -138,6 +154,7 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ArcIterator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ProceduralCurvedScreen.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Test.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/VRUI.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/VRUI_Panel.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/VRUI_PanelGenerator.cs" root0="FORCE_HIGHLIGHTING" />
@@ -146,9 +163,10 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Assets/Scripts/VRUI_Panel.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/VRUI_PanelGenerator.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/VRUI.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ArcIterator.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Test.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/VRUI_PanelGenerator.cs" />
       </list>
     </option>
   </component>
@@ -248,12 +266,12 @@
       <option name="presentableId" value="Default" />
       <updated>1518908467305</updated>
       <workItem from="1518908470220" duration="3228000" />
-      <workItem from="1518987632793" duration="5465000" />
+      <workItem from="1518987632793" duration="9363000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8693000" />
+    <option name="totallyTimeSpent" value="12591000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -266,7 +284,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1696" height="1026" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Errors In Solution" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -335,24 +352,24 @@
         <state relative-caret-position="720">
           <caret line="124" column="21" lean-forward="false" selection-start-line="124" selection-start-column="21" selection-end-line="124" selection-end-column="21" />
           <folding>
-            <marker date="1518990601680" expanded="false" signature="6:92" ph="..." />
-            <marker date="1518990601680" expanded="true" signature="127:7366" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="488:881" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="656:765" ph="/* we're going to want to ensure that the back and front screen have the same ... */" />
-            <marker date="1518990601680" expanded="true" signature="911:1017" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1063:5053" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1422:1542" ph="/* TODO: if we want this to generalize to arc angles &gt;= 90*, ... */" />
-            <marker date="1518990601680" expanded="true" signature="1655:1761" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1973:2332" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1996:2129" ph="/* because the back of the backboard is facing the opposite direction, ... */" />
-            <marker date="1518990601680" expanded="true" signature="2428:3442" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="3529:4533" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="4815:4862" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="5088:7364" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="5612:6309" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="5680:6299" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="6461:7184" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="6523:7174" ph="{...}" />
+            <marker date="1518996468314" expanded="false" signature="6:92" ph="..." />
+            <marker date="1518996468314" expanded="true" signature="127:7262" ph="{...}" />
+            <marker date="1518996468314" expanded="false" signature="488:881" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="656:765" ph="/* we're going to want to ensure that the back and front screen have the same ... */" />
+            <marker date="1518996468314" expanded="true" signature="911:1014" ph="{...}" />
+            <marker date="1518996468314" expanded="false" signature="1060:5050" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="1419:1539" ph="/* TODO: if we want this to generalize to arc angles &gt;= 90*, ... */" />
+            <marker date="1518996468314" expanded="true" signature="1652:1758" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="1970:2329" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="1993:2126" ph="/* because the back of the backboard is facing the opposite direction, ... */" />
+            <marker date="1518996468314" expanded="true" signature="2425:3439" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="3526:4530" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="4812:4859" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="5085:7260" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="5534:6205" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="5886:6195" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="6357:7080" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="6419:7070" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -384,20 +401,6 @@
             <marker date="1518904602703" expanded="true" signature="7604:8266" ph="{...}" />
             <marker date="1518904602703" expanded="true" signature="8428:9151" ph="{...}" />
             <marker date="1518904602703" expanded="true" signature="8490:9141" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/VRUI.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="615">
-          <caret line="41" column="103" lean-forward="false" selection-start-line="41" selection-start-column="103" selection-end-line="41" selection-end-column="103" />
-          <folding>
-            <marker date="1518990834719" expanded="true" signature="6:96" ph="..." />
-            <marker date="1518990834719" expanded="true" signature="189:1242" ph="{...}" />
-            <marker date="1518990834719" expanded="true" signature="306:368" ph="{...}" />
-            <marker date="1518990834719" expanded="true" signature="423:430" ph="{...}" />
-            <marker date="1518990834719" expanded="true" signature="494:1240" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -449,41 +452,69 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/ArcIterator.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="21" lean-forward="false" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+        <state relative-caret-position="555">
+          <caret line="37" column="39" lean-forward="false" selection-start-line="37" selection-start-column="39" selection-end-line="37" selection-end-column="39" />
           <folding>
-            <marker date="1518993167843" expanded="true" signature="6:66" ph="..." />
-            <marker date="1518993167843" expanded="true" signature="140:1308" ph="{...}" />
-            <marker date="1518993167843" expanded="true" signature="297:401" ph="{...}" />
-            <marker date="1518993167843" expanded="true" signature="515:1306" ph="{...}" />
-            <marker date="1518993167843" expanded="true" signature="718:1300" ph="{...}" />
+            <marker date="1518993493330" expanded="true" signature="6:66" ph="..." />
+            <marker date="1518993493330" expanded="true" signature="140:1222" ph="{...}" />
+            <marker date="1518993493330" expanded="true" signature="297:401" ph="{...}" />
+            <marker date="1518993493330" expanded="true" signature="483:1220" ph="{...}" />
+            <marker date="1518993493330" expanded="true" signature="653:1214" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Test.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="14" column="55" lean-forward="false" selection-start-line="14" selection-start-column="55" selection-end-line="14" selection-end-column="55" />
+          <folding>
+            <marker date="1518995735731" expanded="false" signature="6:158" ph="..." />
+            <marker date="1518995735731" expanded="true" signature="194:715" ph="{...}" />
+            <marker date="1518995735731" expanded="true" signature="249:650" ph="{...}" />
+            <marker date="1518995735731" expanded="true" signature="407:638" ph="{...}" />
+            <marker date="1518995735731" expanded="true" signature="705:712" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/VRUI.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="615">
+          <caret line="41" column="103" lean-forward="false" selection-start-line="41" selection-start-column="103" selection-end-line="41" selection-end-column="103" />
+          <folding>
+            <marker date="1518990834719" expanded="true" signature="6:96" ph="..." />
+            <marker date="1518990834719" expanded="true" signature="189:1242" ph="{...}" />
+            <marker date="1518990834719" expanded="true" signature="306:368" ph="{...}" />
+            <marker date="1518990834719" expanded="true" signature="423:430" ph="{...}" />
+            <marker date="1518990834719" expanded="true" signature="494:1240" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/VRUI_PanelGenerator.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="536">
-          <caret line="160" column="9" lean-forward="true" selection-start-line="160" selection-start-column="9" selection-end-line="160" selection-end-column="9" />
+        <state relative-caret-position="674">
+          <caret line="169" column="16" lean-forward="true" selection-start-line="169" selection-start-column="16" selection-end-line="169" selection-end-column="16" />
           <folding>
-            <marker date="1518990601680" expanded="false" signature="6:92" ph="..." />
-            <marker date="1518990601680" expanded="true" signature="127:7366" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="488:881" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="656:765" ph="/* we're going to want to ensure that the back and front screen have the same ... */" />
-            <marker date="1518990601680" expanded="true" signature="911:1017" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1063:5053" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1422:1542" ph="/* TODO: if we want this to generalize to arc angles &gt;= 90*, ... */" />
-            <marker date="1518990601680" expanded="true" signature="1655:1761" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1973:2332" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="1996:2129" ph="/* because the back of the backboard is facing the opposite direction, ... */" />
-            <marker date="1518990601680" expanded="true" signature="2428:3442" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="3529:4533" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="4815:4862" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="5088:7364" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="5612:6309" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="5680:6299" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="6461:7184" ph="{...}" />
-            <marker date="1518990601680" expanded="true" signature="6523:7174" ph="{...}" />
+            <marker date="1518996468314" expanded="false" signature="6:92" ph="..." />
+            <marker date="1518996468314" expanded="true" signature="127:7262" ph="{...}" />
+            <marker date="1518996468314" expanded="false" signature="488:881" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="656:765" ph="/* we're going to want to ensure that the back and front screen have the same ... */" />
+            <marker date="1518996468314" expanded="true" signature="911:1014" ph="{...}" />
+            <marker date="1518996468314" expanded="false" signature="1060:5050" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="1419:1539" ph="/* TODO: if we want this to generalize to arc angles &gt;= 90*, ... */" />
+            <marker date="1518996468314" expanded="true" signature="1652:1758" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="1970:2329" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="1993:2126" ph="/* because the back of the backboard is facing the opposite direction, ... */" />
+            <marker date="1518996468314" expanded="true" signature="2425:3439" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="3526:4530" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="4812:4859" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="5085:7260" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="5534:6205" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="5886:6195" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="6357:7080" ph="{...}" />
+            <marker date="1518996468314" expanded="true" signature="6419:7070" ph="{...}" />
           </folding>
         </state>
       </provider>

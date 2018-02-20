@@ -41,7 +41,7 @@ public class VRUI_PanelGenerator
 	{
 		Mesh screen = GenerateScreen();
 		Mesh backboard = GenerateBackboard(screen);
-		return backboard;
+		return screen;
 	}
 
 	private Mesh GenerateBackboard(Mesh screen)
@@ -156,16 +156,19 @@ public class VRUI_PanelGenerator
         Vector3[] vertices = new Vector3[(cols + 1) * (rows + 1)];
         Vector2[] uv = new Vector2[vertices.Length];
         float theta_range_rad = ScreenWidth / (2f * Mathf.PI * CurveRadius);
-        float theta_offset_rad = (Mathf.PI / 2) + (ScreenWidth/CurveRadius / 2);
+	    
         for (int i = 0, row = 0; row < rows + 1; row++)
         {
+	        float axisPosition = ((row / ((float) rows)) * ScreenHeight) - (.5f * ScreenHeight);
+	        var arcIterator = new ArcIterator(Vector3.up, Vector3.up * axisPosition, CurveRadius)
+		        .Iterator(-theta_range_rad/2f, theta_range_rad/(cols+1))
+		        .GetEnumerator();
             for (int col = 0; col < cols + 1; col++, i++)
             {
-                float arc_position_rad = theta_offset_rad - (col / (float)SquaresPerUnit / (CurveRadius));
-                float x_point = Mathf.Cos(arc_position_rad) * CurveRadius;
-                float z_point = (Mathf.Sin(arc_position_rad)-1) * CurveRadius;
-                float y_point = ((row / ((float)rows)) * ScreenHeight) - (.5f * ScreenHeight);
-                Vector3 position = new Vector3(x_point, y_point, z_point);
+	            arcIterator.MoveNext();
+                Vector3 position = arcIterator.Current;
+	            
+	            
                 vertices[i] = position;
 
                 Vector2 uvvec = new Vector2((float)col / (cols), (float)row / (rows));
