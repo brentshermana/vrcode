@@ -5,6 +5,7 @@ using System.Threading;
 using UnityEngine;
 
 using NetMQ;
+using vrcode.datastructures.concurrent;
 
 public class NetMqListener
 {
