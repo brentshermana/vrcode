@@ -9,8 +9,7 @@ namespace vrcode.vr.vrui.panel
 	public class VRUI_PanelGenerator
 	{
 
-		private static float DefaultSquaresPerUnit = 30f;
-		private static float DefaultScreenDepth = 0.02f;
+		private static float DefaultSquaresPerUnit = 1f;
 	
     
 		private float ScreenWidth;
@@ -23,15 +22,15 @@ namespace vrcode.vr.vrui.panel
 		private int rows;
 		private int cols;
 
-		public VRUI_PanelGenerator(float w, float h, float r)
+		public VRUI_PanelGenerator(PanelShape shape)
 		{
-			ScreenWidth = w;
-			ScreenHeight = h;
-			CurveRadius = r;
+			ScreenWidth = shape.Width;
+			ScreenHeight = shape.Height;
+			CurveRadius = shape.Radius;
 		
 			// default values
-			SquaresPerUnit = DefaultSquaresPerUnit;
-			ScreenDepth = DefaultScreenDepth;
+			SquaresPerUnit = shape.SquaresPerUnit;
+			ScreenDepth = shape.Depth;
 		
 			// we're going to want to ensure that the back and front screen have the same
 			// number of rows and columns
@@ -58,7 +57,7 @@ namespace vrcode.vr.vrui.panel
 			int originalVerticesLen = vertices.Count;
 			//TODO: if we want this to generalize to arc angles >= 90*,
 			//  we need to do more trig calculations for 'shift'
-			Vector3 shift = new Vector3(0f,0f,ScreenDepth);
+			Vector3 shift = new Vector3(0f,0f,-ScreenDepth);
 			for (int i = 0; i < originalVerticesLen; i += 1)
 			{
 				Vector3 newVert = vertices[i] + shift;
@@ -158,19 +157,23 @@ namespace vrcode.vr.vrui.panel
 			Vector3[] vertices = new Vector3[(cols + 1) * (rows + 1)];
 			Vector2[] uv = new Vector2[vertices.Length];
 			//float theta_range_rad = ScreenWidth / (2f * Mathf.PI * CurveRadius);
+			
+			// radius offset  is the offset used to ensure the centerpoint of the screen is at the centerpoint of the mesh,
+			// as opposed to the center of the circle being the center
+			Vector3 radius_offset = Vector3.forward * CurveRadius;
 			float theta_range_rad = Mathf.Abs(ScreenWidth / CurveRadius);
 			for (int i = 0, row = 0; row < rows + 1; row++)
 			{
 				float axisPosition = ((row / ((float) rows)) * ScreenHeight) - (.5f * ScreenHeight);
-				var arcIterator = new ArcIterator(Vector3.up, Vector3.up * axisPosition, CurveRadius)
-					.Iterator(-theta_range_rad/2f, theta_range_rad/(cols+1))
+				var arcIterator = new ArcIterator(Vector3.up, Vector3.up*axisPosition, CurveRadius)
+					.Iterator(Mathf.PI - theta_range_rad/2f, theta_range_rad/(cols+1))
 					.GetEnumerator();
 				for (int col = 0; col < cols + 1; col++, i++)
 				{
 					arcIterator.MoveNext();
 					Vector3 position = arcIterator.Current;
-	            
-					vertices[i] = position;
+
+					vertices[i] = position + radius_offset;
 
 					Vector2 uvvec = new Vector2((float)col / (cols), (float)row / (rows));
 

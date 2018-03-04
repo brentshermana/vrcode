@@ -77,7 +77,7 @@ namespace vrcode.mesh.procedural
             childO.name = "Backboard";
 
             //Debug.Log(LayerMask.NameToLayer("CursorTarget"));
-            childO.layer = LayerMask.NameToLayer("CursorTarget");
+            //childO.layer = LayerMask.NameToLayer("CursorTarget");
 
             BackboardObject = childO;
             childO.transform.position = childO.transform.position + childO.transform.forward * epsilon;
@@ -106,8 +106,7 @@ namespace vrcode.mesh.procedural
 
             // create a new set of vertices by shifting current ones back
             int originalVerticesLen = vertices.Count;
-            //TODO: if we want this to generalize to arc angles >= 90*,
-            //  we need to do more trig calculations for 'shift'
+            //TODO: if we want this to generalize to arc angles >= 90*, we need to do more trig calculations for 'shift'
             Vector3 shift = new Vector3(0f,0f,BackboardDepth);
             for (int i = 0; i < originalVerticesLen; i += 1)
             {

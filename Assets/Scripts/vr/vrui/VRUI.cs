@@ -12,6 +12,9 @@ namespace vrcode.vr.vrui
 		[SerializeField]
 		private Vector3 centerAxis = Vector3.up;
 
+		[SerializeField] private float screenDepth = 1f;
+		[SerializeField] private float squaresPerUnit = 1f;
+
 	
 		#region IN_EDITOR
 		private void OnGUI()
@@ -32,7 +35,7 @@ namespace vrcode.vr.vrui
 		{
 			if (transform.childCount < 1)
 			{
-				AddPanel(transform.position + Vector3.forward, 2f, 1f);
+				AddPanel(transform.position + Vector3.forward*100f, 200f, 100f);
 			}
 		}
 		#endregion
@@ -64,19 +67,23 @@ namespace vrcode.vr.vrui
 			panelObj.transform.parent = transform;
 	    
 			// initialize mesh
-			panelObj.AddComponent<VRUI_Panel>();
-			VRUI_Panel panel = panelObj.GetComponent<VRUI_Panel>();
-			panel.SetShapeParams(width, height, radius.magnitude);
+			VRUI_Panel panel = panelObj.AddComponent<VRUI_TextPanel>();
+			PanelShape shape = new PanelShape(width, height, radius.magnitude, screenDepth, squaresPerUnit);
+			panel.Resize(shape);
 
-			// position:
+			// position (temporary hack for using LookAt):
 			panelObj.transform.position = position;
 	    
 			// point towards axis:
 			Vector3 axisPoint = new Vector3(transform.position.x, position.y, transform.position.z);
 			panelObj.transform.LookAt(axisPoint);
-			panelObj.transform.rotation *= Quaternion.Euler(0f,180f,0f); // currently, mesh is backwards :/
-	    
-	    
+			
+			// set position properly
+			//panelObj.transform.position = transform.position;
+
+			//panelObj.transform.rotation *= Quaternion.Euler(0f,180f,0f); // currently, mesh is backwards :/
+
+
 		}
 
 	
