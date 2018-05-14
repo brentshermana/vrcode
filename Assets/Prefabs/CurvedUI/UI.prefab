@@ -4113,6 +4113,8 @@ MonoBehaviour:
   gazeTimedClickProgressImage: {fileID: 0}
   worldSpaceMouseSensitivity: 1
   usedHand: 0
+  leapProvider: {fileID: 0}
+  fingerRayPullback: 0
   steamVRControllerManager: {fileID: 0}
 --- !u!114 &114727754056165144
 MonoBehaviour:
