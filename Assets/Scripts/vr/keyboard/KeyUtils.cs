@@ -109,9 +109,10 @@ namespace vrcode.vr.keyboard
             else if (specialCharSet)
             {
                 // here we assume that holding down keys is not necessary behavior
-                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyDown, keyCode = this.keyCode });
-                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyDown, keyCode = KeyCode.None, character = (char)asciiCode}); // don't know why we need the middle one
-                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyUp, keyCode = this.keyCode });
+                KeyboardInputManager.AddCharPress((char)asciiCode);
+//                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyDown, keyCode = this.keyCode });
+//                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyDown, keyCode = KeyCode.None, character = (char)asciiCode}); // don't know why we need the middle one
+//                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyUp, keyCode = this.keyCode });
             }
             else
             {

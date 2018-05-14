@@ -14,35 +14,44 @@ namespace vrcode.vr.keyboard
         public float Tiering; // reduction in height per row
 
         // rows go from top to bottom
-        public float[] RowOffsets; // distance each row should be shifted to the right
+        public float[] RowOffsets; // NUMBER OF KEYS each row should be shifted to the right
 
         // the keyboard"s keys
         public string[][] Characters = new string[][]
         {
+            new string[]{"#", "=", ".", ","},
+            new string[]{"+", "-", "*", "/", "%"},
+            new string[]{"'", "\"", "[", "]", "{", "}", "(", ")"},
+            new string[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"},
             new string[]{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" },
             new string[]{ "a", "s", "d", "f", "g", "h", "j", "k", "l"},
             new string[]{"z", "x", "c", "v", "b", "n", "m"},
-            new string[]{ "space"}
+            new string[]{ "space", "bsp"}
         };
 
         // mapping of nonletter keys to their respective keycodes:
         private Dictionary<string, KeyCode> keyCodes = new Dictionary<string, KeyCode>
         {
-            {"space", KeyCode.Space}
+            {"space", KeyCode.Space},
+            {"bsp", KeyCode.Backspace}
         };
         // mapping of keys to nonstandard widths:
         private Dictionary<string, float> keyWidths = new Dictionary<string, float>
         {
-            {"space", .033f*6}
+            
         };
         // mapping of nonletter keys to their respective ascii ints:
         private Dictionary<string, int> keyInts = new Dictionary<string, int>
         {
-            {"space", 32} //http://www.theasciicode.com.ar/ascii-printable-characters/space-ascii-code-32.html
+            {"space", 32}, //http://www.theasciicode.com.ar/ascii-printable-characters/space-ascii-code-32.html
+            {"bsp", 8}
         };
     
         // Use this for initialization
         void Start () {
+            keyWidths.Add("space", KeyDim*5 + KeySpacing*4);
+            keyWidths.Add("bsp", KeyDim*3 + KeySpacing*2);
+            
             float increment = KeyDim + KeySpacing;
 
             Vector3 scale = Vector3.one * KeyDim;
@@ -51,7 +60,7 @@ namespace vrcode.vr.keyboard
             float y = 0f;
             for (int row = 0; row < Characters.Length; row++, z -= increment, y -= Tiering)
             {
-                float x = RowOffsets[row];
+                float x = RowOffsets[row] * KeyDim;
                 for (int col = 0; col < Characters[row].Length; col++, x += KeySpacing)
                 {
                     GameObject newKey = Instantiate(KeyPrefab);

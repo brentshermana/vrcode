@@ -1,15 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using WindowsInput;
+using WindowsInput.Native;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace vrcode.input.keyboard
 {
     public class KeyboardInputManager : MonoBehaviour {
+        
+        private static KeyboardSimulator ks = new KeyboardSimulator(new InputSimulator());
 
         private static KeyboardInputManager singleton;
 
         public void Start()
         {
+            
             if (singleton != null)
             {
                 Debug.LogError("More than one KeyboardInputManager in scene!");
@@ -51,6 +57,12 @@ namespace vrcode.input.keyboard
 
         public static void AddCharPress(char c)
         {
+            // also simulate the input:
+            if (c == '\b')
+                ks.KeyPress(VirtualKeyCode.BACK);
+            else
+                ks.TextEntry(c);
+            
             keyboard_events.AddRange(KeyCharMapping.KeyEvents(c));
         }
     
