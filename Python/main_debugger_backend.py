@@ -1,12 +1,11 @@
-import sys
-
 import os
 import traceback
 
+import zmq_wrapper
+
 import zmq
 
-import json_utils
-from debugger_backend import Qdb
+from debugger.debugger_backend import Qdb
 
 
 def init(host='localhost', port=6000, redirect=True):
@@ -15,22 +14,7 @@ def init(host='localhost', port=6000, redirect=True):
     # TODO: pretty sure we don't need this
     # global qdb, listener, zmq_socket
 
-    # # destroy the debugger if the previous connection is lost (i.e. broken pipe)
-    # if qdb and not qdb.ping():
-    #     qdb.close()
-    #     qdb = None
-
-    address = (host, port)  # family is deduced to be 'AF_INET'
-    print("qdb debugger backend: waiting for connection to {}".format(address))
-    # conn = Client(address, authkey=authkey)
-    zmq_context = zmq.Context()
-    zmq_socket = zmq_context.socket(zmq.PAIR)
-    if host == 'localhost':
-        host = '127.0.0.1'
-    zmq_socket.connect("tcp://{}:{}".format(host, port))
-    zmq_socket.send(b'handshake')
-    zmq_socket.recv()
-    print('qdb debugger backend: connected to'.format(address))
+    zmq_socket = zmq_wrapper.init_backend_socket(host=host, port=port, service_name="Debugger")
     # create the backend
     qdb = Qdb(zmq_socket, redirect_stdio=redirect, allow_interruptions=True)
     # initial handshake
