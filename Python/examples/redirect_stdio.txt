@@ -1,0 +1,45 @@
+sys.stdout = self
+sys.stdin = self
+
+# console file-like object emulation
+    def readline(self):
+        "Replacement for stdin.readline()"
+        msg = {'method': 'readline', 'args': (), 'id': self.i}
+        self.pipe.send(msg)
+        msg = self.pipe.recv()
+        self.i += 1
+        return msg['result']
+
+    def readlines(self):
+        "Replacement for stdin.readlines()"
+        lines = []
+        while lines[-1:] != ['\n']:
+            lines.append(self.readline())
+        return lines
+
+    def write(self, text):
+        "Replacement for stdout.write()"
+        msg = {'method': 'write', 'args': (text, ), 'id': None}
+        self.pipe.send(msg)
+
+    def writelines(self, l):
+        for ls in l:
+            self.write(l)
+        #map(self.write, l)
+
+    def flush(self):
+        pass
+
+    def isatty(self):
+        return 0
+
+    def encoding(self):
+        return None  # use default, 'utf-8' should be better...
+
+    def close(self):
+        # revert redirections and close connection
+        sys.stdin, sys.stdout, sys.stderr = self.old_stdio
+        try:
+            self.pipe.close()
+        except:
+            pass
