@@ -6,6 +6,8 @@ using vrcode.input.keyboard;
 namespace vrcode.vr.keyboard
 {
     public class KeyUtils : ButtonUtils {
+        
+        
         /* normal keys have a particular char value */
         private bool keyCharSet;
         protected char keyChar;
@@ -45,6 +47,30 @@ namespace vrcode.vr.keyboard
             specialCharSet = true;
             keyCharSet = false; // just in case that was set previously
 
+            // load the textures for each character
+            Texture2D[] charTextures = new Texture2D[keyFace.Length];
+            for (int i = 0; i < charTextures.Length; i++)
+            {
+                charTextures[i] = LetterTextureLoader.LoadLetter(
+                    "Textures\\Letters\\",
+                    keyFace[i]
+                ) as Texture2D;
+            }
+            // stitch together horizontally
+            base.SetTexture(TextureStitch(charTextures));
+        }
+
+        /**
+         * A newer special case. For autocompletion keys, we need one string for the key face,
+         * and another (usually different) substring which are the actual 
+         */
+        private bool specialCharSeqSet;
+        private string specialCharSeq;
+        public void SetSpecialKeyInfo(string keyFace, string inputCharSeq)
+        {
+            specialCharSeqSet = true;
+            specialCharSeq = inputCharSeq;
+            
             // load the textures for each character
             Texture2D[] charTextures = new Texture2D[keyFace.Length];
             for (int i = 0; i < charTextures.Length; i++)
@@ -113,6 +139,13 @@ namespace vrcode.vr.keyboard
 //                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyDown, keyCode = this.keyCode });
 //                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyDown, keyCode = KeyCode.None, character = (char)asciiCode}); // don't know why we need the middle one
 //                KeyboardInputManager.AddEvent(new Event() { type = EventType.KeyUp, keyCode = this.keyCode });
+            }
+            else if (specialCharSeqSet)
+            {
+                for (int i = 0; i < specialCharSeq.Length; i++)
+                {
+                    KeyboardInputManager.AddCharPress(specialCharSeq[i]);
+                }
             }
             else
             {

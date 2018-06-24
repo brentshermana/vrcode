@@ -19,16 +19,18 @@ public class TMPUGUITEST : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
-		Debug.Log(tmp.bounds.extents * 2f);
-//		start_time += Time.deltaTime;
-//		if (start_time > 5f && !printed)
-//		{
-//			TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
-//			Debug.Log(tmp.textInfo.characterInfo[0].vertex_BL.position);
-//			Debug.Log(tmp.textInfo.characterInfo[0].vertex_TR.position);
-//
-//			printed = true;
-//		}
+		TMP_InputField field;
+		field.is
+//		TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
+//		Debug.Log(tmp.bounds.extents * 2f);
+////		start_time += Time.deltaTime;
+////		if (start_time > 5f && !printed)
+////		{
+////			TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
+////			Debug.Log(tmp.textInfo.characterInfo[0].vertex_BL.position);
+////			Debug.Log(tmp.textInfo.characterInfo[0].vertex_TR.position);
+////
+////			printed = true;
+////		}
 	}
 }
