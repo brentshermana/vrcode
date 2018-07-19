@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+//using UnityEngine;
 
 using Newtonsoft.Json;
 using vrcode.networking.message;
@@ -18,7 +18,7 @@ namespace vrcode.networking
             return i.ToString();
         }
 
-        public static string tojson(Object o) {
+        public static string tojson(object o) {
             return JsonConvert.SerializeObject(o);
         }
         public static string tojson(string s) {

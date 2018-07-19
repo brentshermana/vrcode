@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 using System.Threading;
+using UnityEditor.Experimental.Build.AssetBundle;
 
 namespace vrcode.datastructures.concurrent
 {
@@ -54,30 +56,33 @@ namespace vrcode.datastructures.concurrent
             }
         }
 
-        public T TryDequeue(ref bool success)
+        public T TryDeque(ref bool success, TimeSpan timeout)
         {
             T ret = default(T);
-            if (!Monitor.TryEnter(syncLock))
+            if (count_sem.WaitOne(timeout))
             {
-                success = false;
-            }
-            else
-            {
-                if (queue.Count > 0)
+                if (Monitor.TryEnter(syncLock, timeout))
                 {
-                    count_sem.WaitOne(); // only acceptable within the lock because we know this won't block
                     ret = queue.Dequeue();
+                    Monitor.Exit(syncLock);
                     success = true;
                 }
                 else
                 {
                     success = false;
                 }
-
-                Monitor.Exit(syncLock);
+            }
+            else
+            {
+                success = false;
             }
 
             return ret;
+        }
+        
+        public T TryDequeue(ref bool success)
+        {
+            return TryDeque(ref success, TimeSpan.Zero);
         }
 
         public void Enqueue(T obj)

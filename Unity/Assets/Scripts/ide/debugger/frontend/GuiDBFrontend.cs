@@ -71,7 +71,7 @@ namespace vrcode.ide.debugger.frontend
         private void Continue()
         {
             DisplayPrompt("Continue Registered");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_continue", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_continue", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -90,7 +90,7 @@ namespace vrcode.ide.debugger.frontend
         private void Step()
         {
             DisplayPrompt("Step Registered");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_step", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_step", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -98,7 +98,7 @@ namespace vrcode.ide.debugger.frontend
         private void Next()
         {
             DisplayPrompt("Next Registered");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_next", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_next", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -106,7 +106,7 @@ namespace vrcode.ide.debugger.frontend
         private void Return()
         {
             DisplayPrompt("Return Registered");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_return", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_return", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -114,7 +114,7 @@ namespace vrcode.ide.debugger.frontend
         private void Where()
         {
             DisplayPrompt("Where Registered");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_where", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_where", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -122,7 +122,7 @@ namespace vrcode.ide.debugger.frontend
         private void Quit()
         {
             DisplayPrompt("Debugging Session Ended");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_quit", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_quit", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -130,7 +130,7 @@ namespace vrcode.ide.debugger.frontend
         private void Environment()
         {
             DisplayPrompt("Environment Registered");
-            this.commandFeed.Enqueue(RPCMessage.Request("do_environment", new List<string>(), 0)); // id will be reset
+            this.commandFeed.Enqueue(RPCMessage.Request("do_environment", new List<object>(), 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
         }
@@ -138,7 +138,7 @@ namespace vrcode.ide.debugger.frontend
         private void Jump()
         {
             string line = GetArg(0);
-            List<string> args = new List<string>();
+            List<object> args = new List<object>();
             args.Add(line);
             this.commandFeed.Enqueue(RPCMessage.Request("do_jump", args, 0)); // id will be reset
             this.commandFeed = null;
@@ -148,7 +148,7 @@ namespace vrcode.ide.debugger.frontend
         private void Eval()
         {
             string expression = GetArg(0);
-            List<string> args = new List<string>();
+            List<object> args = new List<object>();
             args.Add(expression);
             this.commandFeed.Enqueue(RPCMessage.Request("do_eval", args, 0)); // id will be reset
             this.commandFeed = null;
@@ -161,7 +161,7 @@ namespace vrcode.ide.debugger.frontend
             string lineno = GetArg(1);
             Debug.Log("Set BP : " + fname + " : " + lineno);
             // the backend only wants one arg, which is the filename and lineno concatenated with a colon
-            List<string> args = new List<string>(new string[] {fname, lineno});
+            List<object> args = new List<object>(new object[] {fname, lineno});
             this.commandFeed.Enqueue(RPCMessage.Request("do_set_breakpoint", args, 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
@@ -171,7 +171,7 @@ namespace vrcode.ide.debugger.frontend
         {
             string fname = "/Users/brentshermana/dev/repos/vrcode_backend/test.py"; //GetArg(0);
             string lineno = GetArg(1);
-            List<string> args = new List<string>(new string[] {fname, lineno});
+            List<object> args = new List<object>(new string[] {fname, lineno});
             this.commandFeed.Enqueue(RPCMessage.Request("do_clear_breakpoint", args, 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
@@ -180,7 +180,7 @@ namespace vrcode.ide.debugger.frontend
         private void ClearFileBPs()
         {
             string fname = "/Users/brentshermana/dev/repos/vrcode_backend/test.py"; //GetArg(0);
-            List<string> args = new List<string>(new string[] {fname});
+            List<object> args = new List<object>(new object[] {fname});
             this.commandFeed.Enqueue(RPCMessage.Request("do_clear_file_breakpoints", args, 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
@@ -188,7 +188,7 @@ namespace vrcode.ide.debugger.frontend
 
         private void ListBPs()
         {
-            List<string> args = new List<string>();
+            List<object> args = new List<object>();
             this.commandFeed.Enqueue(RPCMessage.Request("do_list_breakpoint", args, 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);
@@ -196,7 +196,7 @@ namespace vrcode.ide.debugger.frontend
 
         private void Exec()
         {
-            List<string> args = new List<string>(new string[] {GetArg(0)});
+            List<object> args = new List<object>(new string[] {GetArg(0)});
             this.commandFeed.Enqueue(RPCMessage.Request("do_exec", args, 0)); // id will be reset
             this.commandFeed = null;
             SetActive(false);

@@ -95,9 +95,9 @@ namespace vrcode.networking.netmq
             //UnityEngine.Debug.Log("Server Interaction args: " + rpc.args);
             // signal to frontend that it should send a command to backend:
             this.interactionArgs = new InteractionArgs(
-                rpc.args[0],
-                rpc.args[1],
-                rpc.args[2]
+                (string)rpc.args[0],
+                (string)rpc.args[1],
+                (string)rpc.args[2]
             );
             this.interactionFlag = true;
 
@@ -169,8 +169,8 @@ namespace vrcode.networking.netmq
             {
                 debuggerErrorQueue.Enqueue(
                     new DebuggerError(
-                        rpc.args[0],
-                        rpc.args[1]
+                        (string)rpc.args[0],
+                        (string)rpc.args[1]
                     )
                 );
             }
@@ -189,18 +189,18 @@ namespace vrcode.networking.netmq
                         break;
                     case "startup":
                         // TODO: store args given
-                        RPCMessage request = RPCMessage.Request("run", new List<string>(), i);
+                        RPCMessage request = RPCMessage.Request("run", new List<object>(), i);
                         i += 1;
                         ret = MyConvert.rpcobj(request);
                         break;
                     case "exception":
                         programErrorQueue.Enqueue(
                             new ProgramError(
-                                rpc.args[0], // title
-                                rpc.args[1], // type
-                                rpc.args[2], // value
-                                rpc.args[3], // trace
-                                rpc.args[4]  // message
+                                (string)rpc.args[0], // title
+                                (string)rpc.args[1], // type
+                                (string)rpc.args[2], // value
+                                (string)rpc.args[3], // trace
+                                (string)rpc.args[4]  // message
                             )
                         );
                         break;
@@ -219,7 +219,7 @@ namespace vrcode.networking.netmq
                         break;
                     case "ping":
                         //TODO: test
-                        rpc.result = rpc.args[0];
+                        rpc.result = (string)rpc.args[0];
                         ret = MyConvert.rpcobj(rpc);
                         break;
                     default:

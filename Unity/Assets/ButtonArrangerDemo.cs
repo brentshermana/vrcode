@@ -26,7 +26,6 @@ public class ButtonArrangerDemo : MonoBehaviour
 			key.SetSize(charSize * s.Length, charSize, charSize);
 			key.SetTravel(.1f * charSize);
 			
-			
 			ba.AddButton(button);
 		}
 	}

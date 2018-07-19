@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Text;
 
 namespace vrcode.networking.message
 {
@@ -12,7 +13,7 @@ namespace vrcode.networking.message
 
         // request
         public string method { get; set; }
-        public List<string> args { get; set; } //changed from 'params' because that's a reserved word here
+        public List<object> args { get; set; } //changed from 'params' because that's a reserved word here
 
         // response
         public string result { get; set; }
@@ -25,13 +26,22 @@ namespace vrcode.networking.message
 
         public override string ToString()
         {
-            string argstr = "";
-            if (args != null) argstr = string.Join(" , ", args.ToArray());
+            StringBuilder argstr = new StringBuilder();
+            if (args != null)
+            {
+                for (int i = 0; i < args.Count; i++)
+                {
+                    argstr.Append(args[i].ToString());
+                    if (i != args.Count - 1)
+                        argstr.Append(", ");
+                }
+            }
+
             return string.Format("RPCMessage:\n\nid={0}\njsonrpc={1}\nmethod={2}\nargs={3}\nresult={4}\nerror={5}", id, jsonrpc, method, argstr, result, error);
         }
 
         // helper constructors
-        public static RPCMessage Request(string m, List<string> a, int i) {
+        public static RPCMessage Request(string m, List<object> a, int i) {
             RPCMessage rpc = new RPCMessage();
             rpc.method = m;
             rpc.args = a;

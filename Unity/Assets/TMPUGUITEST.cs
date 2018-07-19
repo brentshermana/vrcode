@@ -20,7 +20,6 @@ public class TMPUGUITEST : MonoBehaviour
 	void Update ()
 	{
 		TMP_InputField field;
-		field.is
 //		TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
 //		Debug.Log(tmp.bounds.extents * 2f);
 ////		start_time += Time.deltaTime;
