@@ -86,9 +86,9 @@ class FileEditorBackend(ZmqBackendCmdLoop):
 
 
 
-    def do_set_source(self, source):
+    def do_set_source(self, source, line, col):
         self.lines = source.splitlines()
-        return True
+        return self.on_cursor_change(line, col)
 
     def do_backspace(self, lineno, col):
         if self.line_exists(lineno):
