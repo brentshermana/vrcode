@@ -27,7 +27,6 @@ class Qdb(bdb.Bdb, ZmqRpcIO):
             kwargs['skip'] = skip
         bdb.Bdb.__init__(self, **kwargs)
         self.frame = None
-        self.i = 1  # sequential RPC call id
         self.waiting = False
         self.zmq_socket = zmq_socket  # for communication
         ZmqRpcIO.__init__(self, self.zmq_socket)
@@ -561,10 +560,9 @@ class Qdb(bdb.Bdb, ZmqRpcIO):
     # so we can forward stdio requests over the network
     def readline(self):
         "Replacement for stdin.readline()"
-        msg = {'method': 'readline', 'ARGS': (), 'id': self.i}
+        msg = {'method': 'readline', 'ARGS': (), 'id': -1}
         self.send(msg)
         msg = self.recv()
-        self.i += 1
         return msg['result']
 
     def readlines(self):
