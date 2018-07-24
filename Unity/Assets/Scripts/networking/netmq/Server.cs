@@ -25,19 +25,19 @@ namespace vrcode.networking.netmq
             switch (result.Method)
             {
                 case ("do_environment"):
-                    Frontend.Result(MyConvert.fromjson<DBEnvironment>(result.Result));
+                    //Frontend.Result(MyConvert.fromjson<DBEnvironment>(result.Result));
                     break;
                 case ("do_where"):
-                    Frontend.Result(MyConvert.fromjson<DBStackTrace>(result.Result));
+                    //Frontend.Result(MyConvert.fromjson<DBStackTrace>(result.Result));
                     break;
                 case ("do_eval"):
-                    Frontend.Result(new DBEvalResult(result.Result));
+                    //Frontend.Result(new DBEvalResult(result.Result));
                     break;
                 case ("do_list_breakpoint"):
-                    Frontend.Result(MyConvert.fromjson<List<DBBreakpoint>>(result.Result));
+                    //Frontend.Result(MyConvert.fromjson<List<DBBreakpoint>>(result.Result));
                     break;
                 case ("do_exec"):
-                    Frontend.Result(new DBExecResult(result.Result));
+                    //Frontend.Result(new DBExecResult(result.Result));
                     break;
             }
         }
@@ -64,7 +64,7 @@ namespace vrcode.networking.netmq
             bool isStdout = false;
             string stdout = _netMqPublisher.stdoutQueue.TryDequeue(ref isStdout);
             if (isStdout) {
-                Frontend.Stdout(stdout);
+                Frontend.WriteStdout(stdout);
             }
             //check for errors
             if (_netMqPublisher.programErrorQueue.Count > 0) {
@@ -84,7 +84,7 @@ namespace vrcode.networking.netmq
                     DebuggerError err = _netMqPublisher.debuggerErrorQueue.TryDequeue(ref success);
                     if (success)
                     {
-                        Frontend.DebuggerErrorNotif(err);
+                        //Frontend.DebuggerErrorNotif(err);
                     }
                 }
             }
@@ -92,11 +92,11 @@ namespace vrcode.networking.netmq
             // check flags
             if (_netMqPublisher.readFlag) {
                 _netMqPublisher.readFlag = false;
-                Frontend.ReadReady(_netMqPublisher.stdinQueue);
+                //Frontend.ReadReady(_netMqPublisher.stdinQueue);
             }
             if (_netMqPublisher.interactionFlag) {
                 _netMqPublisher.interactionFlag = false;
-                Frontend.InteractionReady(_netMqPublisher.interactionArgs,  _netMqPublisher.interactionQueue);
+                //Frontend.InteractionReady(_netMqPublisher.interactionArgs,  _netMqPublisher.interactionQueue);
             }
             if (_netMqPublisher.quitFlag) {
                 // don't reset quit flag, it indicates that NetMQ communication should cease

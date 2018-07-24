@@ -9,15 +9,11 @@ using vrcode.networking.message;
 
 namespace vrcode.networking.netmq
 {
-    /**
-     * This class represents an obsolete model... InteractionResult is not a class
-     * which has any inherent value. The Frontend should operate on RPCMessage objects
-     * directly!
-     */
-    public class NetMQPublisher
+    public class NewNetMQPublisher
     {
-        public NetMQPublisher(ConcurrentQueue<InteractionResult> ResultQueue_) {
-            ResultQueue = ResultQueue_;
+        public NewNetMQPublisher()
+        {
+            ResultQueue = new ConcurrentQueue<RPCMessage>();
 
             _contactWatch = new Stopwatch();
             _contactWatch.Start();
@@ -29,7 +25,9 @@ namespace vrcode.networking.netmq
             waitSpan = new TimeSpan(0, 0, 0, 0, 100); // 100 millis
         }
 
-        private ConcurrentQueue<InteractionResult> ResultQueue;
+        public readonly ConcurrentQueue<RPCMessage> ResultQueue;
+
+        public InteractionArgs interactionArgs;
 
         private readonly Thread _listenerWorker;
 
@@ -41,6 +39,8 @@ namespace vrcode.networking.netmq
 
         public bool Connected;
 
+        public bool readFlag;
+
         bool sending = false;
 
         private TimeSpan waitSpan;
@@ -48,30 +48,28 @@ namespace vrcode.networking.netmq
 
         private NetMQSocket server;
 
-        public ConcurrentQueue<byte[]> sendQueue = new ConcurrentQueue<byte[]>();
-        public ConcurrentQueue<byte[]> recvQueue = new ConcurrentQueue<byte[]>();
-
-        public ConcurrentQueue<RPCMessage> interactionQueue = new ConcurrentQueue<RPCMessage>();
+        public ConcurrentQueue<RPCMessage> RequestQueue = new ConcurrentQueue<RPCMessage>();
 
         public ConcurrentQueue<string> stdoutQueue = new ConcurrentQueue<string>();
         public ConcurrentQueue<string> stdinQueue = new ConcurrentQueue<string>();
 
         public ConcurrentQueue<ProgramError> programErrorQueue
             = new ConcurrentQueue<ProgramError>();
-        public ConcurrentQueue<DebuggerError> debuggerErrorQueue
-            = new ConcurrentQueue<DebuggerError>();
 
-        public InteractionArgs interactionArgs = null;
+//        public ConcurrentQueue<DebuggerError> debuggerErrorQueue
+//            = new ConcurrentQueue<DebuggerError>();
+
 
         public bool interactionFlag = false;
         public bool quitFlag = false;
-        public bool readFlag = false;
 
         private Queue<byte[]> notifications = new Queue<byte[]>();
         private string nextOutgoingMessage = null;
 
-        private void checkForInterrupt() {
-            if (_listenerCancelled) {
+        private void checkForInterrupt()
+        {
+            if (_listenerCancelled)
+            {
                 NetMQConfig.Cleanup();
                 Thread.CurrentThread.Abort();
             }
@@ -79,46 +77,55 @@ namespace vrcode.networking.netmq
         }
 
         // actual blocking recvs exist, but don't check for thread interrupt requests
-        private byte[] blockingRecv(NetMQSocket socket) {
+        private byte[] blockingRecv(NetMQSocket socket)
+        {
             byte[] bytes;
-            while (!socket.TryReceiveFrameBytes(waitSpan, out bytes)) {
+            while (!socket.TryReceiveFrameBytes(waitSpan, out bytes))
+            {
                 checkForInterrupt();
             }
+
             Connected = _contactWatch.ElapsedMilliseconds < ContactThreshold;
             return bytes;
         }
-        private void blockingSend(NetMQSocket socket, byte[] data) {
+
+        private void blockingSend(NetMQSocket socket, byte[] data)
+        {
             while (!OutgoingSocketExtensions.TrySendFrame(socket, waitSpan, data))
             {
                 checkForInterrupt();
             }
+
             Connected = _contactWatch.ElapsedMilliseconds < ContactThreshold;
         }
 
         // TODO: what to do with return value??
-        private string interaction (RPCMessage rpc) {
+        private string interaction(RPCMessage rpc)
+        {
             //UnityEngine.Debug.Log("Server Interaction args: " + rpc.args);
             // signal to frontend that it should send a command to backend:
             this.interactionArgs = new InteractionArgs(
-                (string)rpc.args[0],
-                (string)rpc.args[1],
-                (string)rpc.args[2]
+                (string) rpc.args[0],
+                (string) rpc.args[1],
+                (string) rpc.args[2]
             );
             this.interactionFlag = true;
 
             // get the request from frontend:
-            RPCMessage req = this.interactionQueue.Dequeue();
+            RPCMessage req = this.RequestQueue.Dequeue();
             // make sure it has the right id
             req.id = i;
             i += 1;
             // send it to backend:
             blockingSend(server, MyConvert.rpcobj(req));
             // now wait for response
-            while (true) {
+            while (true)
+            {
                 byte[] recvBuf = blockingRecv(server);
                 RPCMessage response = MyConvert.rpcobj(recvBuf);
                 UnityEngine.Debug.Log("Response:\n" + response.ToString());
-                if (response.id == req.id && response.method == req.method) {
+                if (response.id == req.id && response.method == req.method)
+                {
                     if (response.error != null)
                     {
                         UnityEngine.Debug.LogError("Response error for method " + req.method + " : " + response.error);
@@ -126,24 +133,28 @@ namespace vrcode.networking.netmq
                     else
                     {
                         UnityEngine.Debug.Log("...Response is the desired return value: " + response.result);
-                        ResultQueue.Enqueue(new InteractionResult(req.method, response.result));
+                        ResultQueue.Enqueue(response);
                         return response.result;
                     }
                 }
-                else if (response.id == -1) {
+                else if (response.id == -1)
+                {
                     UnityEngine.Debug.Log("...Response is a notification");
                     // notification... should be processed later
                     this.notifications.Enqueue(recvBuf);
                 }
-                else if (response.result == null) {
+                else if (response.result == null)
+                {
                     UnityEngine.Debug.Log("...Response is a request");
                     // request... should be processed now
                     processMessage(recvBuf);
                 }
-                else if (response.id != req.id) {
+                else if (response.id != req.id)
+                {
                     UnityEngine.Debug.LogError("Response had id " + response.id + ", but was expecting " + req.id);
                 }
-                else {
+                else
+                {
                     UnityEngine.Debug.LogError("Unknown State!");
                 }
             }
@@ -161,9 +172,12 @@ namespace vrcode.networking.netmq
                 UnityEngine.Debug.LogError(e.Message + "\n" + e.StackTrace);
                 return;
             }
+
             processMessage(rpc);
         }
-        private void processMessage(RPCMessage rpc) {
+
+        private void processMessage(RPCMessage rpc)
+        {
 
             UnityEngine.Debug.Log(rpc);
 
@@ -172,12 +186,15 @@ namespace vrcode.networking.netmq
             // incoming message denotes an error that was thrown by the debugger's code
             if (rpc.error != null)
             {
-                debuggerErrorQueue.Enqueue(
-                    new DebuggerError(
-                        (string)rpc.args[0],
-                        (string)rpc.args[1]
-                    )
-                );
+                // frontend should check for
+                // errors. We no longer need a separate queue for them
+                ResultQueue.Enqueue(rpc);
+//                debuggerErrorQueue.Enqueue(
+//                    new DebuggerError(
+//                        (string) rpc.args[0],
+//                        (string) rpc.args[1]
+//                    )
+//                );
             }
             // ordinary and expected messages, handle accordingly
             else
@@ -201,11 +218,11 @@ namespace vrcode.networking.netmq
                     case "exception":
                         programErrorQueue.Enqueue(
                             new ProgramError(
-                                (string)rpc.args[0], // title
-                                (string)rpc.args[1], // type
-                                (string)rpc.args[2], // value
-                                (string)rpc.args[3], // trace
-                                (string)rpc.args[4]  // message
+                                (string) rpc.args[0], // title
+                                (string) rpc.args[1], // type
+                                (string) rpc.args[2], // value
+                                (string) rpc.args[3], // trace
+                                (string) rpc.args[4] // message
                             )
                         );
                         break;
@@ -221,10 +238,11 @@ namespace vrcode.networking.netmq
                         {
                             stdoutQueue.Enqueue(s);
                         }
+
                         break;
                     case "ping":
                         //TODO: test
-                        rpc.result = (string)rpc.args[0];
+                        rpc.result = (string) rpc.args[0];
                         ret = MyConvert.rpcobj(rpc);
                         break;
                     default:
@@ -249,7 +267,8 @@ namespace vrcode.networking.netmq
             server.Bind("tcp://*:6000");
             UnityEngine.Debug.Log("ZeroMQ Bind");
 
-            try {
+            try
+            {
                 // initial handshake
                 UnityEngine.Debug.Log("ZeroMQ Starting Handshake");
                 blockingRecv(server);
@@ -261,11 +280,13 @@ namespace vrcode.networking.netmq
                 while (!_listenerCancelled && !quitFlag)
                 {
                     // process notifications, if any
-                    if (notifications.Count > 0) {
+                    if (notifications.Count > 0)
+                    {
                         processMessage(notifications.Dequeue());
                     }
                     // otherwise read new message
-                    else {
+                    else
+                    {
                         byte[] newMsg = blockingRecv(server);
                         processMessage(newMsg);
                     }
