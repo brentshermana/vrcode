@@ -1,5 +1,9 @@
 namespace vrcode.networking.message
 {
+    /**
+     * An error exhibited by the debugger itself, rather than
+     * be the debugged program
+     */
     public class DebuggerError {
         public DebuggerError(string code_, string message_) {
             this.code = code;

@@ -1,5 +1,9 @@
 namespace vrcode.networking.message
 {
+    /**
+     * An error occurring in the debugged program. Does not indicate that the debugger
+     * itself experienced any problems
+     */
     public class ProgramError {
         public ProgramError(string title_, string type_, string val_, string trace_, string message_) {
             this.title = title_;

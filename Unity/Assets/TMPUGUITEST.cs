@@ -14,12 +14,19 @@ public class TMPUGUITEST : MonoBehaviour
 	{
 //		Debug.Log(tmp.autoSizeTextContainer);
 //		tmp.autoSizeTextContainer = true;
+		TMP_InputField field = GetComponent<TMP_InputField>();
+		field.text = "<color=#333333>hello!</color>";
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		TMP_InputField field;
+//		TMP_InputField field = GetComponent<TMP_InputField>();
+//		Debug.Log(field.text);
+//		Debug.Log(field.textComponent.textInfo.characterCount);
+//		Debug.Log(field.caretPosition);
+		
+		
 //		TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
 //		Debug.Log(tmp.bounds.extents * 2f);
 ////		start_time += Time.deltaTime;
