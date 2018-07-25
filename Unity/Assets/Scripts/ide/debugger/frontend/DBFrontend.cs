@@ -60,11 +60,11 @@ namespace vrcode.ide.debugger.frontend
         {
             if (backend_process != null)
             {
-                string stdout = backend_process.StandardOutput.ReadToEnd();
-                if (stdout.Length > 0) UnityEngine.Debug.Log(stdout);
-
-                string stderr = backend_process.StandardError.ReadToEnd();
-                if (stderr.Length > 0) UnityEngine.Debug.LogError(stderr);
+//                string stdout = backend_process.StandardOutput.ReadToEnd();
+//                if (stdout.Length > 0) UnityEngine.Debug.Log(stdout);
+//
+//                string stderr = backend_process.StandardError.ReadToEnd();
+//                if (stderr.Length > 0) UnityEngine.Debug.LogError(stderr);
             }
         }
         
@@ -96,9 +96,9 @@ namespace vrcode.ide.debugger.frontend
             //1 launch backend with correct arg
             backend_process = new Process();
             backend_process.StartInfo.FileName = python_path; // technically, the program we're launching is python
-            backend_process.StartInfo.UseShellExecute = false; //necessary for getting stdout,err
-            backend_process.StartInfo.RedirectStandardError = true;
-            backend_process.StartInfo.RedirectStandardOutput = true;
+            //backend_process.StartInfo.UseShellExecute = false; //necessary for getting stdout,err
+            //backend_process.StartInfo.RedirectStandardError = true;
+            //backend_process.StartInfo.RedirectStandardOutput = true;
             backend_process.StartInfo.Arguments = backend_script_path + " " + debugged_script;
             backend_process.Start();
             
