@@ -153,6 +153,15 @@ class Qdb(bdb.Bdb, ZmqRpcIO):
     def run(self, code, interp=None, *args, **kwargs):
         try:
             return bdb.Bdb.run(self, code, *args, **kwargs)
+        # except Exception as e:
+        #     print(e)
+        #     # just debug print statements
+        #     print("Running Statement {}".format(code))
+        #     for arg in args:
+        #         print("run arg: {}".format(arg))
+        #     for name, val in kwargs.items():
+        #         print("run named arg {} is {}".format(name, val))
+
         finally:
             pass
 
@@ -178,6 +187,13 @@ class Qdb(bdb.Bdb, ZmqRpcIO):
         self._wait_for_mainpyfile = 1
         self.mainpyfile = self.canonic(filename)
         self._user_requested_quit = 0
+
+        # when the interpreter sees \U, it thinks there is
+        # some special unicode interpretation of those characters
+        # and following characters. We need to escape the slash
+        # so that it doesn't do that.
+        filename = filename.replace('\\U', '\\\\U')
+
         if sys.version_info > (3, 0):
             statement = 'imp.load_source("__main__", "%s")' % filename
         else:
