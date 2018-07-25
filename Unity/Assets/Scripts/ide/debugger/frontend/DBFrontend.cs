@@ -3,6 +3,7 @@ using vrcode.datastructures.concurrent;
 using vrcode.networking.message;
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using UnityEngine;
 using vrcode.networking;
@@ -20,6 +21,13 @@ namespace vrcode.ide.debugger.frontend
     [RequireComponent(typeof(NewServer))] // the server does all the essential reads and writes
     public abstract class DBFrontend : MonoBehaviour
     {
+        [SerializeField] private string python_path;
+        [SerializeField] private string backend_script_path;
+
+        private NewServer server;
+
+        private Process backend_process;
+        
         private Dictionary<int, Action<RPCMessage, DebuggerError>> callbacks;
         private Queue<RPCMessage> outgoing_messages;
         private Queue<string> stdinQueue;
@@ -37,13 +45,27 @@ namespace vrcode.ide.debugger.frontend
         
         #region monobehaviour_events
 
-        void Start()
+        public void Start()
         {
+            server = GetComponent<NewServer>();
             callbacks = new Dictionary<int, Action<RPCMessage, DebuggerError>>();
             outgoing_messages = new Queue<RPCMessage>();
             i = 1;
             stdinSurplus = 0;
             requestSurplus = 0;
+            stdinQueue = new Queue<string>();
+        }
+
+        public void Update()
+        {
+            if (backend_process != null)
+            {
+                string stdout = backend_process.StandardOutput.ReadToEnd();
+                if (stdout.Length > 0) UnityEngine.Debug.Log(stdout);
+
+                string stderr = backend_process.StandardError.ReadToEnd();
+                if (stderr.Length > 0) UnityEngine.Debug.LogError(stderr);
+            }
         }
         
         #endregion
@@ -67,6 +89,22 @@ namespace vrcode.ide.debugger.frontend
         
         
         #region IDBFrontend_Implementation
+
+        public void StartDebugging(string debugged_script)
+        {
+            //TODO: 
+            //1 launch backend with correct arg
+            backend_process = new Process();
+            backend_process.StartInfo.FileName = python_path; // technically, the program we're launching is python
+            backend_process.StartInfo.UseShellExecute = false; //necessary for getting stdout,err
+            backend_process.StartInfo.RedirectStandardError = true;
+            backend_process.StartInfo.RedirectStandardOutput = true;
+            backend_process.StartInfo.Arguments = backend_script_path + " " + debugged_script;
+            backend_process.Start();
+            
+            //2 launch NewServer
+            server.StartDebugging();
+        }
         
         private void SendRequest(string method, Action<RPCMessage, DebuggerError> callback)
         {

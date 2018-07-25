@@ -11,9 +11,62 @@ namespace vrcode.networking.netmq
 {
     public class NewNetMQPublisher
     {
-        public NewNetMQPublisher()
+
+        public ConcurrentQueue<RPCMessage> ResultQueue;
+
+        public InteractionArgs interactionArgs;
+
+        private  Thread _listenerWorker;
+
+        private bool _listenerCancelled;
+
+        private Stopwatch _contactWatch;
+
+        private const long ContactThreshold = 1000;
+
+        public bool Connected;
+
+        public bool readFlag;
+
+        bool sending;
+
+        private TimeSpan waitSpan;
+        private int i;
+
+        private NetMQSocket server;
+
+        public ConcurrentQueue<RPCMessage> RequestQueue;
+
+        public ConcurrentQueue<string> stdoutQueue;
+        public ConcurrentQueue<string> stdinQueue;
+
+        public ConcurrentQueue<ProgramError> programErrorQueue;
+
+//        public ConcurrentQueue<DebuggerError> debuggerErrorQueue
+//            = new ConcurrentQueue<DebuggerError>();
+
+
+        public bool interactionFlag;
+        public bool quitFlag;
+
+        private Queue<byte[]> notifications;
+        private string nextOutgoingMessage;
+        
+        public void Start()
         {
+            UnityEngine.Debug.Log("New Net MQ Publisher Start");
+            
+            // necessary instantiation
+            stdoutQueue = new ConcurrentQueue<string>();
+            stdinQueue = new ConcurrentQueue<string>();
+            programErrorQueue = new ConcurrentQueue<ProgramError>();
+            i = 1;
+            sending = false;
+            interactionFlag = false;
+            quitFlag = false;
+            nextOutgoingMessage = null;
             ResultQueue = new ConcurrentQueue<RPCMessage>();
+            RequestQueue = new ConcurrentQueue<RPCMessage>();
 
             _contactWatch = new Stopwatch();
             _contactWatch.Start();
@@ -23,48 +76,24 @@ namespace vrcode.networking.netmq
             // waitspan is the maximum tolerable latency between a user-level interrupt
             // request and the thread's conclusion
             waitSpan = new TimeSpan(0, 0, 0, 0, 100); // 100 millis
+            notifications = new Queue<byte[]>();
+            _listenerCancelled = false;
+            
+            // finally, start the thread
+            _listenerWorker.Start();
         }
 
-        public readonly ConcurrentQueue<RPCMessage> ResultQueue;
+        public void Stop()
+        {
+            UnityEngine.Debug.Log("New Net MQ Publisher Stop");
+            _listenerCancelled = true;
+            if (server != null)
+                server.Close();
 
-        public InteractionArgs interactionArgs;
-
-        private readonly Thread _listenerWorker;
-
-        private bool _listenerCancelled;
-
-        private readonly Stopwatch _contactWatch;
-
-        private const long ContactThreshold = 1000;
-
-        public bool Connected;
-
-        public bool readFlag;
-
-        bool sending = false;
-
-        private TimeSpan waitSpan;
-        private int i = 1;
-
-        private NetMQSocket server;
-
-        public ConcurrentQueue<RPCMessage> RequestQueue = new ConcurrentQueue<RPCMessage>();
-
-        public ConcurrentQueue<string> stdoutQueue = new ConcurrentQueue<string>();
-        public ConcurrentQueue<string> stdinQueue = new ConcurrentQueue<string>();
-
-        public ConcurrentQueue<ProgramError> programErrorQueue
-            = new ConcurrentQueue<ProgramError>();
-
-//        public ConcurrentQueue<DebuggerError> debuggerErrorQueue
-//            = new ConcurrentQueue<DebuggerError>();
-
-
-        public bool interactionFlag = false;
-        public bool quitFlag = false;
-
-        private Queue<byte[]> notifications = new Queue<byte[]>();
-        private string nextOutgoingMessage = null;
+            //  Note: both of the following cause the unity editor to hang/crash
+            //NetMQConfig.Cleanup();
+            //_listenerWorker.Join();
+        }
 
         private void checkForInterrupt()
         {
@@ -105,9 +134,9 @@ namespace vrcode.networking.netmq
             //UnityEngine.Debug.Log("Server Interaction args: " + rpc.args);
             // signal to frontend that it should send a command to backend:
             this.interactionArgs = new InteractionArgs(
-                (string) rpc.args[0],
-                (string) rpc.args[1],
-                (string) rpc.args[2]
+                rpc.args[0].ToString(),
+                rpc.args[1].ToString(),
+                rpc.args[2].ToString()
             );
             this.interactionFlag = true;
 
@@ -300,21 +329,6 @@ namespace vrcode.networking.netmq
             NetMQConfig.Cleanup();
         }
 
-        public void Start()
-        {
-            _listenerCancelled = false;
-            _listenerWorker.Start();
-        }
-
-        public void Stop()
-        {
-            _listenerCancelled = true;
-            if (server != null)
-                server.Close();
-
-            //  Note: both of the following cause the unity editor to hang/crash
-            //NetMQConfig.Cleanup();
-            //_listenerWorker.Join();
-        }
+        
     }
 }
