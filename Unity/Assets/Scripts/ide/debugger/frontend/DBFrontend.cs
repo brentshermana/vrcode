@@ -21,8 +21,7 @@ namespace vrcode.ide.debugger.frontend
     [RequireComponent(typeof(NewServer))] // the server does all the essential reads and writes
     public abstract class DBFrontend : MonoBehaviour
     {
-        [SerializeField] private string python_path;
-        [SerializeField] private string backend_script_path;
+        
 
         private NewServer server;
 
@@ -67,7 +66,7 @@ namespace vrcode.ide.debugger.frontend
 //                if (stderr.Length > 0) UnityEngine.Debug.LogError(stderr);
             }
         }
-        
+
         #endregion
         
         
@@ -92,18 +91,8 @@ namespace vrcode.ide.debugger.frontend
 
         public void StartDebugging(string debugged_script)
         {
-            //TODO: 
-            //1 launch backend with correct arg
-            backend_process = new Process();
-            backend_process.StartInfo.FileName = python_path; // technically, the program we're launching is python
-            //backend_process.StartInfo.UseShellExecute = false; //necessary for getting stdout,err
-            //backend_process.StartInfo.RedirectStandardError = true;
-            //backend_process.StartInfo.RedirectStandardOutput = true;
-            backend_process.StartInfo.Arguments = backend_script_path + " " + debugged_script;
-            backend_process.Start();
-            
             //2 launch NewServer
-            server.StartDebugging();
+            server.StartDebugging(debugged_script);
         }
         
         private void SendRequest(string method, Action<RPCMessage, DebuggerError> callback)

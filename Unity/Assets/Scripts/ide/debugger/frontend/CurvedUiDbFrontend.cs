@@ -7,7 +7,8 @@ namespace vrcode.ide.debugger.frontend
 {
     public class CurvedUiDbFrontend : DBFrontend
     {
-        [SerializeField] private string debugged_script; // TODO: REMOVE
+        [SerializeField] private string debugged_script; // TODO: REMOVE eventually...
+        
         [SerializeField] private TMP_InputField log;
         [SerializeField] private TMP_InputField stdout;
         private int nlines = 6;

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using vrcode.datastructures.concurrent;
 using vrcode.ide.debugger.frontend;
 using vrcode.networking.message;
+using Debug = UnityEngine.Debug;
 
 namespace vrcode.networking.netmq
 {
@@ -13,6 +15,10 @@ namespace vrcode.networking.netmq
      */
     public class NewServer : MonoBehaviour
     {
+        [SerializeField] private string python_path;
+        [SerializeField] private string backend_script_path;
+        
+        
         public bool Connected; // only exists to be visible in the editor
         private DBFrontend Frontend;
         private NewNetMQPublisher _netMqPublisher;
@@ -20,10 +26,22 @@ namespace vrcode.networking.netmq
 
         private bool active = false;
 
-        public void StartDebugging()
+        private Process backend_process;
+
+        public void StartDebugging(string debugged_script)
         {
             if (!active)
             {
+                // start debugger backend
+                backend_process = new Process();
+                backend_process.StartInfo.FileName = python_path; // technically, the program we're launching is python
+                //backend_process.StartInfo.UseShellExecute = false; //necessary for getting stdout,err
+                //backend_process.StartInfo.RedirectStandardError = true;
+                //backend_process.StartInfo.RedirectStandardOutput = true;
+                backend_process.StartInfo.Arguments = backend_script_path + " " + debugged_script;
+                backend_process.Start();
+                
+                //start frontend io
                 _netMqPublisher = new NewNetMQPublisher();
                 _netMqPublisher.Start();
                 ResultQueue = _netMqPublisher.ResultQueue;
@@ -40,6 +58,10 @@ namespace vrcode.networking.netmq
         {
             if (active)
             {
+                if (!backend_process.HasExited)
+                {
+                    backend_process.Kill(); // will this block?
+                }
                 active = false;
                 _netMqPublisher.Stop();
             }
