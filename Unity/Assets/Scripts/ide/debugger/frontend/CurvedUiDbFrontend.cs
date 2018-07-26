@@ -7,19 +7,22 @@ namespace vrcode.ide.debugger.frontend
 {
     public class CurvedUiDbFrontend : DBFrontend
     {
+        [SerializeField] private EnvironmentDisplayer envDisplay;
+        
         [SerializeField] private string debugged_script; // TODO: REMOVE eventually...
         
         [SerializeField] private TMP_InputField log;
         [SerializeField] private TMP_InputField stdout;
         private int nlines = 6;
 
+        private bool gotEnvLast = false;
 
         void Start()
         {
             base.Start();
+         
             
             StartDebugging(debugged_script);
-            //ContinueExecution();
         }
 
         void Update()
@@ -68,13 +71,38 @@ namespace vrcode.ide.debugger.frontend
 
         public override void OnNeedDebuggerCommand()
         {
-            Debug.Log("DBFrontend: Waiting for a command");
-            log.text += "Paused: waiting for a command\n";
-            truncate(log);
+            // we need to ask for the environment every other command, because the only
+            // commands exposed to the user are 'move' commands, which can possibly change the
+            // state of one or more variables
+            if (gotEnvLast)
+            {
+                gotEnvLast = false;
+                
+                Debug.Log("DBFrontend: Waiting for a command");
+                log.text += "Paused: waiting for a command\n";
+                truncate(log);
+            }
+            else
+            {
+                gotEnvLast = true;
+                
+                GetEnvironment((DBEnvironment environment, DebuggerError error) =>
+                {
+                    if (error != null)
+                    {
+                        Debug.LogError(error);
+                    }
+                    else
+                    {
+                        envDisplay.DisplayEnvironment(environment);
+                    }
+                });
+            }
         }
 
         public override void DBQuit()
         {
+            gotEnvLast = false;
             Debug.Log("DBFrontend: Debugger Session Quit");
             log.text += "Debugger Session Quit\n";
             truncate(log);

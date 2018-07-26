@@ -5,6 +5,7 @@ using vrcode.networking.message;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using NUnit.Framework.Constraints;
 using UnityEngine;
 using vrcode.networking;
 using vrcode.networking.netmq;
@@ -75,13 +76,24 @@ namespace vrcode.ide.debugger.frontend
 
         private void RegisterCallback(int id, Action<RPCMessage, DebuggerError> callback)
         {
+            UnityEngine.Debug.Log("Registering callback for request id " + id);
             callbacks[id] = callback;
         }
         private void InvokeCallback(int id, RPCMessage response, DebuggerError error)
         {
-            if (callbacks[id] != null) // this is acceptable, null just means 'don't do anything'
-                callbacks[id].Invoke(response, error);
-            callbacks.Remove(id); // callbacks are only used once
+            UnityEngine.Debug.Log("Invoking callback for request id " + id);
+            if (id < 1) return; // backend will send messages with id -1
+
+            if (!callbacks.ContainsKey(id))
+            {
+                UnityEngine.Debug.LogError("ID Key " + id + " with method " + response.method + " not in dict!");
+            }
+            else
+            {
+                if (callbacks[id] != null) // this is acceptable, null just means 'don't do anything'
+                    callbacks[id].Invoke(response, error);
+                callbacks.Remove(id); // callbacks are only used once
+            }
         }
 
         #endregion
@@ -91,7 +103,6 @@ namespace vrcode.ide.debugger.frontend
 
         public void StartDebugging(string debugged_script)
         {
-            //2 launch NewServer
             server.StartDebugging(debugged_script);
         }
         

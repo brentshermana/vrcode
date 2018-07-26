@@ -52,6 +52,10 @@ namespace vrcode.vr
             int h = textures[0].height;
             for (int i = 1; i < textures.Length; i++)
             {
+                if (textures[i] == null)
+                {
+                    Debug.LogError("texture for character at index " + i + " is null");
+                }
                 if (textures[i].height != h)
                     Debug.LogError("Textures don't have same height");
                 wSum += textures[i].width;
