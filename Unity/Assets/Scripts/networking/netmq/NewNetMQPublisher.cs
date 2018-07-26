@@ -31,7 +31,6 @@ namespace vrcode.networking.netmq
         bool sending;
 
         private TimeSpan waitSpan;
-        private int i;
 
         private NetMQSocket server;
 
@@ -60,7 +59,6 @@ namespace vrcode.networking.netmq
             stdoutQueue = new ConcurrentQueue<string>();
             stdinQueue = new ConcurrentQueue<string>();
             programErrorQueue = new ConcurrentQueue<ProgramError>();
-            i = 1;
             sending = false;
             interactionFlag = false;
             quitFlag = false;
@@ -142,9 +140,12 @@ namespace vrcode.networking.netmq
 
             // get the request from frontend:
             RPCMessage req = this.RequestQueue.Dequeue();
-            // make sure it has the right id
-            req.id = i;
-            i += 1;
+            
+            // DBFrontend does this now
+//            // make sure it has the right id
+//            req.id = i;
+//            i += 1;
+            
             // send it to backend:
             blockingSend(server, MyConvert.rpcobj(req));
             // now wait for response
@@ -240,8 +241,7 @@ namespace vrcode.networking.netmq
                         break;
                     case "startup":
                         // TODO: store args given
-                        RPCMessage request = RPCMessage.Request("run", new List<object>(), i);
-                        i += 1;
+                        RPCMessage request = RPCMessage.Request("run", new List<object>(), 0);
                         ret = MyConvert.rpcobj(request);
                         break;
                     case "exception":
