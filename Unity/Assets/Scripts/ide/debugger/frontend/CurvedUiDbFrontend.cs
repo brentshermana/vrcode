@@ -112,7 +112,7 @@ namespace vrcode.ide.debugger.frontend
         {
             Debug.Log("DBFrontend: Writing Stdout");
             stdout.text += output;
-            stdout.text += "/n"; // TODO: does the stdout already contain a newline character?
+            stdout.text += "\n"; // TODO: does the stdout already contain a newline character?
             truncate(stdout);
         }
     }

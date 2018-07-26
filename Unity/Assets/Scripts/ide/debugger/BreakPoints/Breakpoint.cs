@@ -4,11 +4,13 @@ using UnityEngine;
 using vrcode.ide.debugger.frontend;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Remoting.Channels;
 using UnityEngine.VR.WSA;
 using vrcode.networking.message;
 
 namespace vrcode.ide.debugger.BreakPoints
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class Breakpoint : InteractionBehaviour
     {
         // TODO: this information should not be tracked by breakpoint. Change this once there's a better idea
@@ -40,6 +42,8 @@ namespace vrcode.ide.debugger.BreakPoints
         [SerializeField] private DBFrontend debugger;
 
         [SerializeField] private float lerpFactor;
+
+        private Rigidbody rb;
         
         // state variables
         private int line = -1;
@@ -60,13 +64,27 @@ namespace vrcode.ide.debugger.BreakPoints
             OnGraspBegin += ReplaceSelf;
             
             OnGraspEnd += onGraspEnd;
+
+            rb = GetComponent<Rigidbody>();
         }
 
         void Update()
         {
-            if (line >= 0)
+            if (line >= 0 && !isGrasped)
             {
-                transform.position = Vector3.Lerp(transform.position, target_position, lerpFactor);
+                transform.position = Vector3.Lerp(transform.position, target_position, lerpFactor * Time.deltaTime);
+            }
+            else if (line < 0 && !isGrasped)
+            {
+                transform.position = Vector3.Lerp(transform.position, generation_site, lerpFactor * Time.deltaTime);
+            }
+
+            if (!isGrasped)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, lerpFactor * Time.deltaTime);
             }
         }
 
@@ -117,6 +135,7 @@ namespace vrcode.ide.debugger.BreakPoints
 
             if (lowest_dist < max_release_dist * max_release_dist)
             {
+                debugger.SetBreakpoint(SOURCE_FILENAME, line, ((message, error) => { if (error != null) Destroy(gameObject); }));
                 line = best_i;
                 target_position = origin + inc * best_i;
                 all_breakpoints[line] = this;

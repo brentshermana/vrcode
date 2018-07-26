@@ -15,7 +15,8 @@ namespace vrcode.vr
         public void OnPress()
         {
             Debug.Log("OnPress " + button_face);
-            OnPressAction.Invoke();
+            if (OnPressAction != null)
+                OnPressAction.Invoke();
         }
 
         public void Start()
