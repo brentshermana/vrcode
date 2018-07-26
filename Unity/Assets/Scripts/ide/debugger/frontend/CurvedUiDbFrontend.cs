@@ -17,7 +17,9 @@ namespace vrcode.ide.debugger.frontend
         void Start()
         {
             base.Start();
+            
             StartDebugging(debugged_script);
+            //ContinueExecution();
         }
 
         void Update()
