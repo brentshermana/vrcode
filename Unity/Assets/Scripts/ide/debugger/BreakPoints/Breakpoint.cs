@@ -3,9 +3,6 @@ using Leap.Unity.Interaction;
 using UnityEngine;
 using vrcode.ide.debugger.frontend;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.Remoting.Channels;
-using UnityEngine.VR.WSA;
 using vrcode.networking.message;
 
 namespace vrcode.ide.debugger.BreakPoints
