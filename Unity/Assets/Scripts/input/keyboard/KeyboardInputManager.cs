@@ -60,6 +60,8 @@ namespace vrcode.input.keyboard
             // also simulate the input:
             if (c == '\b')
                 ks.KeyPress(VirtualKeyCode.BACK);
+            else if (c == '\n')
+                ks.KeyPress(VirtualKeyCode.RETURN);
             else
                 ks.TextEntry(c);
             
