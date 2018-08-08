@@ -12,7 +12,7 @@ namespace vrcode.ide.debugger.BreakPoints
     {
         // TODO: this information should not be tracked by breakpoint. Change this once there's a better idea
         //       of how to manage this
-        [SerializeField] private string SOURCE_FILENAME;
+        //[SerializeField] private string SOURCE_FILENAME;
         
         
         // track all breakpoint positions
@@ -96,7 +96,7 @@ namespace vrcode.ide.debugger.BreakPoints
             if (line >= 0)
             {    
                 all_breakpoints.Remove(line);
-                debugger.ClearBreakpoint(SOURCE_FILENAME, line, (RPCMessage msg, DebuggerError err) =>
+                debugger.ClearBreakpoint(TheEnvironment.GetSourceFilePath(), line, (RPCMessage msg, DebuggerError err) =>
                 {
                     if (err != null)
                     {
@@ -132,7 +132,7 @@ namespace vrcode.ide.debugger.BreakPoints
 
             if (lowest_dist < max_release_dist * max_release_dist)
             {
-                debugger.SetBreakpoint(SOURCE_FILENAME, line, ((message, error) => { if (error != null) Destroy(gameObject); }));
+                debugger.SetBreakpoint(TheEnvironment.GetSourceFilePath(), line, ((message, error) => { if (error != null) Destroy(gameObject); }));
                 line = best_i;
                 target_position = origin + inc * best_i;
                 all_breakpoints[line] = this;

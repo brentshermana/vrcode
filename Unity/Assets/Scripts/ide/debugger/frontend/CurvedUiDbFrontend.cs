@@ -9,7 +9,7 @@ namespace vrcode.ide.debugger.frontend
     {
         [SerializeField] private EnvironmentDisplayer envDisplay;
         
-        [SerializeField] private string debugged_script; // TODO: REMOVE eventually...
+        //[SerializeField] private string debugged_script; // TODO: REMOVE eventually...
         
         [SerializeField] private TMP_InputField log;
         [SerializeField] private TMP_InputField stdout;
@@ -21,16 +21,13 @@ namespace vrcode.ide.debugger.frontend
         {
             base.Start();
          
-            
-            StartDebugging(debugged_script);
+            StartDebugging(TheEnvironment.GetSourceFilePath());
         }
 
         void Update()
         {
             base.Update();
         }
-        
-        
 
         private void truncate(TMP_InputField field)
         {

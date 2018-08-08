@@ -15,8 +15,8 @@ namespace vrcode.networking.netmq
      */
     public class NewServer : MonoBehaviour
     {
-        [SerializeField] private string python_path;
-        [SerializeField] private string backend_script_path;
+        //[SerializeField] private string python_path;
+        //[SerializeField] private string backend_script_path;
         
         
         public bool Connected; // only exists to be visible in the editor
@@ -34,11 +34,11 @@ namespace vrcode.networking.netmq
             {
                 // start debugger backend
                 backend_process = new Process();
-                backend_process.StartInfo.FileName = python_path; // technically, the program we're launching is python
+                backend_process.StartInfo.FileName = TheEnvironment.GetPythonPath(); // technically, the program we're launching is python
                 //backend_process.StartInfo.UseShellExecute = false; //necessary for getting stdout,err
                 //backend_process.StartInfo.RedirectStandardError = true;
                 //backend_process.StartInfo.RedirectStandardOutput = true;
-                backend_process.StartInfo.Arguments = backend_script_path + " " + debugged_script;
+                backend_process.StartInfo.Arguments = TheEnvironment.GetDebuggerScriptPath() + " " + debugged_script;
                 backend_process.Start();
                 
                 //start frontend io
