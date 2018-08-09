@@ -42,7 +42,7 @@ def run_backend(host='localhost', port=6000):
 
     db = init(host, port)
     try:
-        print("running {}".format(mainpyfile))
+        #print("running {}".format(mainpyfile))
         # create the backend
         db._runscript(mainpyfile)
         print("The program finished")

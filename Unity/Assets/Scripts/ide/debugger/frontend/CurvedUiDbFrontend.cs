@@ -2,11 +2,15 @@
 using UnityEngine;
 using vrcode.networking.message;
 using TMPro;
+using Valve.VR.InteractionSystem;
 
 namespace vrcode.ide.debugger.frontend
 {
     public class CurvedUiDbFrontend : DBFrontend
     {
+        [SerializeField] private GameObject ArrowPrefab;
+        private GameObject lastArrow;
+        
         [SerializeField] private EnvironmentDisplayer envDisplay;
         
         [SerializeField] private string debugged_script; // TODO: REMOVE eventually...
@@ -20,7 +24,6 @@ namespace vrcode.ide.debugger.frontend
         void Start()
         {
             base.Start();
-         
             
             StartDebugging(debugged_script);
         }
@@ -29,8 +32,6 @@ namespace vrcode.ide.debugger.frontend
         {
             base.Update();
         }
-        
-        
 
         private void truncate(TMP_InputField field)
         {
@@ -67,6 +68,10 @@ namespace vrcode.ide.debugger.frontend
             Debug.Log("DBFrontend: Updating Debugger Status");
             log.text += "Status: line " + args.lineno + "\n";
             truncate(log);
+            
+            //if (args.filename == debugged_script)
+                PlaceArrow(int.Parse(args.lineno));
+            //else ClearArrow();
         }
 
         public override void OnNeedDebuggerCommand()
@@ -106,13 +111,32 @@ namespace vrcode.ide.debugger.frontend
             Debug.Log("DBFrontend: Debugger Session Quit");
             log.text += "Debugger Session Quit\n";
             truncate(log);
+
+            ClearArrow();
+        }
+
+        private void ClearArrow()
+        {
+            if (lastArrow != null)
+            {
+                Destroy(lastArrow);
+                lastArrow = null;
+            }
+        }
+
+        private void PlaceArrow(int line)
+        {
+            ClearArrow();
+
+            lastArrow = Instantiate(ArrowPrefab);
+            lastArrow.GetComponent<LinePositioner>().GoToLine(line);
         }
 
         public override void WriteStdout(string output)
         {
             Debug.Log("DBFrontend: Writing Stdout");
             stdout.text += output;
-            stdout.text += "\n"; // TODO: does the stdout already contain a newline character?
+            //stdout.text += "\n"; // TODO: does the stdout already contain a newline character?
             truncate(stdout);
         }
     }

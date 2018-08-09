@@ -107,6 +107,10 @@ namespace vrcode.ide.debugger.BreakPoints
                         // TODO: would also be a good idea to create another breakpoint and place it there
                         //       if one doesn't already exist at that location
                     }
+                    else
+                    {
+                        UnityEngine.Debug.Log("Breakpoint: removed from line " + line);
+                    }
                 });
             }
         }
@@ -121,8 +125,6 @@ namespace vrcode.ide.debugger.BreakPoints
             for (int i = 0; i < num_placement_sites; i++)
             {
                 
-                
-                // making the assumption that max_release_dist 
                 float dist = (transform.position - pos).sqrMagnitude;
                 if (dist < lowest_dist && !all_breakpoints.ContainsKey(i))
                 {
@@ -135,8 +137,17 @@ namespace vrcode.ide.debugger.BreakPoints
 
             if (lowest_dist < max_release_dist * max_release_dist)
             {
-                debugger.SetBreakpoint(SOURCE_FILENAME, line, ((message, error) => { if (error != null) Destroy(gameObject); }));
-                line = best_i;
+                line = best_i + 1; // index 1 based, not zero
+                UnityEngine.Debug.Log("Breakpoint set at line " + line);
+                
+                debugger.SetBreakpoint(SOURCE_FILENAME, line, ((message, error) =>
+                {
+                    if (error != null) Destroy(gameObject);
+                    else
+                    {
+                        UnityEngine.Debug.Log("Breakpoint: set at line " + line);
+                    }
+                }));
                 target_position = origin + inc * best_i;
                 all_breakpoints[line] = this;
             }

@@ -76,7 +76,7 @@ namespace vrcode.ide.debugger.frontend
 
         private void RegisterCallback(int id, Action<RPCMessage, DebuggerError> callback)
         {
-            UnityEngine.Debug.Log("Registering callback for request id " + id);
+            //UnityEngine.Debug.Log("Registering callback for request id " + id);
             callbacks[id] = callback;
         }
         private void InvokeCallback(int id, RPCMessage response, DebuggerError error)

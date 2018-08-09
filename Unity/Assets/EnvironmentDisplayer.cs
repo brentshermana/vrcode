@@ -40,7 +40,7 @@ public class EnvironmentDisplayer : MonoBehaviour {
 			string buttonstring = v.name + " => " + v.val;
 			buttonstring = buttonstring.Replace(' ', '_');
 			buttonstring = buttonstring.Replace('\\', '-'); // for some reason loading backslashes doesn't work
-			Debug.Log("Displaying Environment Variable:" + v.name + "\n" + buttonstring);
+			//Debug.Log("Displaying Environment Variable:" + v.name + "\n" + buttonstring);
 			CreateButton(buttonstring);
 		}
 	}
