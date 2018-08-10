@@ -25,11 +25,27 @@ public class DebuggerButtons : MonoBehaviour
 	{
 		buttonArranger = GetComponent<ButtonArranger>();
 		
-		//CreateButton("Run", );
-		CreateButton("Continue", ()=>{debugger.ContinueExecution(); });
-		CreateButton("Next", ()=>{debugger.Next();});
-		CreateButton("Step", ()=>{debugger.Step();});
+		CreateButton("Continue", () =>
+		{
+			debugger.ContinueExecution();
+		});
 		
+		CreateButton("Next", () =>
+		{
+			debugger.Next();
+		});
+		
+		CreateButton("Step", () =>
+		{
+			debugger.Step();
+		});
+		
+		CreateButton("Run", () =>
+		{
+			TheEnvironment.Rewrite();
+			debugger.StartDebugging(TheEnvironment.GetSourceFilePath());
+		});
+
 	}
 
 	void CreateButton(string face, Action whenPressed)

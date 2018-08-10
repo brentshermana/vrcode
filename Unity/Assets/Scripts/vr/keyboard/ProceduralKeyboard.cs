@@ -26,31 +26,34 @@ namespace vrcode.vr.keyboard
             new string[]{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" },
             new string[]{ "a", "s", "d", "f", "g", "h", "j", "k", "l"},
             new string[]{"z", "x", "c", "v", "b", "n", "m"},
-            new string[]{ "space", "bsp"}
+            new string[]{ "space", "bsp", "nl"}
         };
 
         // mapping of nonletter keys to their respective keycodes:
         private Dictionary<string, KeyCode> keyCodes = new Dictionary<string, KeyCode>
         {
             {"space", KeyCode.Space},
-            {"bsp", KeyCode.Backspace}
+            {"bsp", KeyCode.Backspace},
+            {"nl", KeyCode.Return}
         };
         // mapping of keys to nonstandard widths:
-        private Dictionary<string, float> keyWidths = new Dictionary<string, float>
-        {
-            
-        };
+        private Dictionary<string, float> keyWidths;
         // mapping of nonletter keys to their respective ascii ints:
         private Dictionary<string, int> keyInts = new Dictionary<string, int>
         {
             {"space", 32}, //http://www.theasciicode.com.ar/ascii-printable-characters/space-ascii-code-32.html
-            {"bsp", 8}
+            {"bsp", 8},
+            {"nl", 13}
         };
     
         // Use this for initialization
         void Start () {
-            keyWidths.Add("space", KeyDim*5 + KeySpacing*4);
-            keyWidths.Add("bsp", KeyDim*3 + KeySpacing*2);
+            keyWidths = new Dictionary<string, float>
+            {
+                {"space", KeyDim*5},
+                {"bsp", KeyDim*3},
+                {"nl", KeyDim*2}
+            };
             
             float increment = KeyDim + KeySpacing;
 

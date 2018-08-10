@@ -566,7 +566,7 @@ public class ValveCamera : MonoBehaviour
 		if ( HasCommandLineArg( "-aqmaxres" ) )
 		{
 			nMaxRenderTargetDimension = GetCommandLineArgValue( "-aqmaxres", nMaxRenderTargetDimension );
-			flMaxRenderTargetScale = Mathf.Min( ( float )nMaxRenderTargetDimension / ( float )VRSettings.eyeTextureWidth, ( float )nMaxRenderTargetDimension / ( float )VRSettings.eyeTextureHeight );
+			flMaxRenderTargetScale = Mathf.Min( ( float )nMaxRenderTargetDimension / ( float )UnityEngine.XR.XRSettings.eyeTextureWidth, ( float )nMaxRenderTargetDimension / ( float )UnityEngine.XR.XRSettings.eyeTextureHeight );
 		}
 
 		// Clear array
@@ -582,7 +582,7 @@ public class ValveCamera : MonoBehaviour
 			m_adaptiveQualityRenderScaleArray.Add( flCurrentScale );
 			flCurrentScale = Mathf.Sqrt( ( ( float )( nFillRatePercentStep + 100 ) / 100.0f ) * flCurrentScale * flCurrentScale );
 
-			if ( ( ( flCurrentScale * VRSettings.eyeTextureWidth ) > nMaxRenderTargetDimension ) || ( ( flCurrentScale * VRSettings.eyeTextureHeight ) > nMaxRenderTargetDimension ) )
+			if ( ( ( flCurrentScale * UnityEngine.XR.XRSettings.eyeTextureWidth ) > nMaxRenderTargetDimension ) || ( ( flCurrentScale * UnityEngine.XR.XRSettings.eyeTextureHeight ) > nMaxRenderTargetDimension ) )
 			{
 				// Too large
 				break;
@@ -610,7 +610,7 @@ public class ValveCamera : MonoBehaviour
 			for ( int i = 1; i < m_adaptiveQualityRenderScaleArray.Count; i++ )
 			{
 				outputString += i + ". ";
-				outputString += " " + ( int )( VRSettings.eyeTextureWidth * m_adaptiveQualityRenderScaleArray[ i ] ) + "x" + ( int )( VRSettings.eyeTextureHeight * m_adaptiveQualityRenderScaleArray[ i ] );
+				outputString += " " + ( int )( UnityEngine.XR.XRSettings.eyeTextureWidth * m_adaptiveQualityRenderScaleArray[ i ] ) + "x" + ( int )( UnityEngine.XR.XRSettings.eyeTextureHeight * m_adaptiveQualityRenderScaleArray[ i ] );
 				outputString += " " + m_adaptiveQualityRenderScaleArray[ i ];
 
 				if ( i == m_adaptiveQualityDefaultLevel )
@@ -632,13 +632,13 @@ public class ValveCamera : MonoBehaviour
 	{
 		if ( !m_adaptiveQualityEnabled )
 		{
-			if ( VRSettings.enabled )
+			if ( UnityEngine.XR.XRSettings.enabled )
 			{
-				if ( VRSettings.renderScale != 1.0f )
-					VRSettings.renderScale = 1.0f;
+				if ( UnityEngine.XR.XRSettings.eyeTextureResolutionScale != 1.0f )
+					UnityEngine.XR.XRSettings.eyeTextureResolutionScale = 1.0f;
 
-				if ( VRSettings.renderViewportScale != 1.0f )
-					VRSettings.renderViewportScale = 1.0f;
+				if ( UnityEngine.XR.XRSettings.renderViewportScale != 1.0f )
+					UnityEngine.XR.XRSettings.renderViewportScale = 1.0f;
 			}
 
 			return;
@@ -653,10 +653,10 @@ public class ValveCamera : MonoBehaviour
 		// Add latest timing to ring buffer
 		int nRingBufferSize = m_adaptiveQualityRingBuffer.GetLength( 0 );
 		m_nAdaptiveQualityRingBufferPos = ( m_nAdaptiveQualityRingBufferPos + 1 ) % nRingBufferSize;
-		m_adaptiveQualityRingBuffer[ m_nAdaptiveQualityRingBufferPos ] = VRStats.gpuTimeLastFrame;
+		m_adaptiveQualityRingBuffer[ m_nAdaptiveQualityRingBufferPos ] = UnityEngine.XR.XRStats.gpuTimeLastFrame;
 
 		int nOldQualityLevel = m_nAdaptiveQualityLevel;
-		float flSingleFrameMs = ( VRDevice.refreshRate > 0.0f ) ? ( 1000.0f / VRDevice.refreshRate ) : ( 1000.0f / 90.0f ); // Assume 90 fps
+		float flSingleFrameMs = ( UnityEngine.XR.XRDevice.refreshRate > 0.0f ) ? ( 1000.0f / UnityEngine.XR.XRDevice.refreshRate ) : ( 1000.0f / 90.0f ); // Assume 90 fps
 
 		// Render low res means adaptive quality needs to scale back target to free up gpu cycles
 		bool bRenderLowRes = false;
@@ -809,17 +809,17 @@ public class ValveCamera : MonoBehaviour
 			}
 		}
 
-		if ( VRSettings.enabled )
+		if ( UnityEngine.XR.XRSettings.enabled )
 		{
-			VRSettings.renderScale = flRenderTargetScale;
-			VRSettings.renderViewportScale = ( m_adaptiveQualityRenderScaleArray[ nAdaptiveQualityLevel ] / flRenderTargetScale ) * flAdditionalViewportScale;
+			UnityEngine.XR.XRSettings.eyeTextureResolutionScale = flRenderTargetScale;
+			UnityEngine.XR.XRSettings.renderViewportScale = ( m_adaptiveQualityRenderScaleArray[ nAdaptiveQualityLevel ] / flRenderTargetScale ) * flAdditionalViewportScale;
 			//Debug.Log( "VRSettings.renderScale " + VRSettings.renderScale + " VRSettings.renderViewportScale " + VRSettings.renderViewportScale + "\n\n" );
 		}
 
 		Shader.SetGlobalInt( "g_nNumBins", m_adaptiveQualityNumLevels );
 		Shader.SetGlobalInt( "g_nDefaultBin", m_adaptiveQualityDefaultLevel );
 		Shader.SetGlobalInt( "g_nCurrentBin", nAdaptiveQualityLevel );
-		Shader.SetGlobalInt( "g_nLastFrameInBudget", m_bInterleavedReprojectionEnabled || ( VRStats.gpuTimeLastFrame > flSingleFrameMs ) ? 0 : 1 );
+		Shader.SetGlobalInt( "g_nLastFrameInBudget", m_bInterleavedReprojectionEnabled || ( UnityEngine.XR.XRStats.gpuTimeLastFrame > flSingleFrameMs ) ? 0 : 1 );
 	}
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------

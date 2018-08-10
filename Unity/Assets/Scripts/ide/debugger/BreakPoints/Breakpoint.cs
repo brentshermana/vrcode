@@ -3,9 +3,6 @@ using Leap.Unity.Interaction;
 using UnityEngine;
 using vrcode.ide.debugger.frontend;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.Remoting.Channels;
-using UnityEngine.VR.WSA;
 using vrcode.networking.message;
 
 namespace vrcode.ide.debugger.BreakPoints
@@ -15,7 +12,7 @@ namespace vrcode.ide.debugger.BreakPoints
     {
         // TODO: this information should not be tracked by breakpoint. Change this once there's a better idea
         //       of how to manage this
-        [SerializeField] private string SOURCE_FILENAME;
+        //[SerializeField] private string SOURCE_FILENAME;
         
         
         // track all breakpoint positions
@@ -99,7 +96,7 @@ namespace vrcode.ide.debugger.BreakPoints
             if (line >= 0)
             {    
                 all_breakpoints.Remove(line);
-                debugger.ClearBreakpoint(SOURCE_FILENAME, line, (RPCMessage msg, DebuggerError err) =>
+                debugger.ClearBreakpoint(TheEnvironment.GetSourceFilePath(), line, (RPCMessage msg, DebuggerError err) =>
                 {
                     if (err != null)
                     {
@@ -139,15 +136,7 @@ namespace vrcode.ide.debugger.BreakPoints
             {
                 line = best_i + 1; // index 1 based, not zero
                 UnityEngine.Debug.Log("Breakpoint set at line " + line);
-                
-                debugger.SetBreakpoint(SOURCE_FILENAME, line, ((message, error) =>
-                {
-                    if (error != null) Destroy(gameObject);
-                    else
-                    {
-                        UnityEngine.Debug.Log("Breakpoint: set at line " + line);
-                    }
-                }));
+                debugger.SetBreakpoint(TheEnvironment.GetSourceFilePath(), line, ((message, error) => { if (error != null) Destroy(gameObject); }));
                 target_position = origin + inc * best_i;
                 all_breakpoints[line] = this;
             }
